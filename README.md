@@ -2,9 +2,11 @@
 
 > **Conversation builds the screen.** A conversational shopping demo where the LLM decides *which UI to draw* for each question, and a Flutter app renders that spec as native widgets in real time — built on [flutter/genui](https://github.com/flutter/genui) (A2UI v0.9) and Claude.
 
-[한국어 README](README_ko.md) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)
+[한국어 README](README_ko.md) · [Demo video](https://simonryu21.github.io/genui-conversational-shop/demo.mp4) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)
 
 ## Introducing the demo
+
+▶ **[Watch the demo video](https://simonryu21.github.io/genui-conversational-shop/demo.mp4)** (mp4, ~7 MB)
 
 Most chat agents answer in text only. This project shows an agent that answers **with the fitting UI**: a card grid for recommendations, a comparison table for "compare these two", an ad-hoc form when there are too many candidates, and plain text when no UI is needed. Buttons inside the generated UI feed back into the conversation as the next turn.
 

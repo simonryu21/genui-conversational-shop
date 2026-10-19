@@ -2,9 +2,11 @@
 
 > **대화가 화면을 만든다.** 사용자의 질문을 보고 LLM이 *어떤 UI를 그릴지* 스스로 결정하고, Flutter 앱이 그 명세를 네이티브 위젯으로 실시간 렌더링하는 대화형 쇼핑 데모 — [flutter/genui](https://github.com/flutter/genui)(A2UI v0.9) + Claude.
 
-[English README](README.md) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html)
+[English README](README.md) · [데모 영상](https://simonryu21.github.io/genui-conversational-shop/demo.mp4) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html)
 
 ## 소개
+
+▶ **[데모 영상 보기](https://simonryu21.github.io/genui-conversational-shop/demo.mp4)** (mp4, 약 7MB)
 
 대부분의 챗봇은 텍스트로만 답한다. 이 프로젝트의 에이전트는 **상황에 맞는 UI로** 답한다. 추천이면 카드 그리드, "두 개 비교해줘"면 비교표, 후보가 너무 많으면 즉석 폼, UI가 필요 없으면 텍스트만. 생성된 UI 안의 버튼은 다시 대화의 다음 턴이 된다.
 
