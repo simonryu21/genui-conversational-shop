@@ -42,6 +42,13 @@ body{background:var(--bg);font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial
 .slide.roomy .loopbar{font-size:15px;padding:10px 14px}
 .slide.roomy .lead{font-size:22px}
 /* 내용이 빽빽한 슬라이드: 표·카드 패딩 축소 */
+.slide.tight .step{padding:6px 12px}
+.slide.tight .steps{gap:6px}
+.slide.tight .step .st{font-size:14.5px}
+.slide.tight .step .sd{font-size:12.5px;line-height:1.4;margin-top:1px}
+.slide.tight .chat{padding:10px;gap:6px;font-size:13px}
+.slide.tight pre{font-size:11px;line-height:1.4;padding:10px 12px}
+.slide.tight .card li{font-size:13px;line-height:1.4}
 .slide.dense table.t{font-size:13.5px}
 .slide.dense table.t td,.slide.dense table.t th{padding:7px 10px}
 .slide.dense .card{padding:13px 16px}
@@ -188,8 +195,8 @@ body.show-notes .notes{display:block}
 </section>
 
 <!-- ========================================================= 3. Concept -->
-<section class="slide roomy">
-  <div class="s-head"><div><div class="s-tag">02 · CONCEPT</div><div class="s-title">GenUI on one slide — "stream a UI spec, get actions back"<span class="sub">The Flutter team's generative-UI SDK. The model speaks JSON; the app translates it into widgets</span></div></div><div class="s-meta"><div class="no">02</div></div></div>
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">02 · CONCEPT</div><div class="s-title">GenUI on one slide: stream UI specs, get actions<span class="sub">The Flutter team's generative-UI SDK. The model speaks JSON; the app translates it into widgets</span></div></div><div class="s-meta"><div class="no">02</div></div></div>
   <div class="s-body">
     <div class="flow">
       <div class="box"><div class="t">👤 User</div><div class="d">"Recommend winter camping gear"<br>or clicks <b>Add</b> on a card</div></div>
@@ -213,7 +220,7 @@ body.show-notes .notes{display:block}
 
 <!-- ========================================================= 4. Architecture -->
 <section class="slide dense">
-  <div class="s-head"><div><div class="s-tag">03 · ARCHITECTURE</div><div class="s-title">Demo setup — verifying "dynamism" with a real LLM and a real DB<span class="sub">Does the model query the DB itself and decide the screen from what it finds?</span></div></div><div class="s-meta"><div class="no">03</div></div></div>
+  <div class="s-head"><div><div class="s-tag">03 · ARCHITECTURE</div><div class="s-title">Demo setup — a real LLM and a real DB<span class="sub">Verifying "dynamism": does the model query the DB itself and decide the screen from what it finds?</span></div></div><div class="s-meta"><div class="no">03</div></div></div>
   <div class="s-body">
     <div class="flow">
       <div class="box"><div class="t">Flutter Web (Chrome)</div><div class="d"><span class="badge b-blue">genui 0.10.2</span><br>4 custom catalog items + standard parts<br>SSE in → parser → native widgets</div></div>
@@ -222,7 +229,7 @@ body.show-notes .notes{display:block}
       <div class="arr">⇄<small>tools</small></div>
       <div class="box"><div class="t">PostgreSQL shop_db</div><div class="d"><span class="badge b-teal">317 products</span><br>members · products(specs JSONB)<br>purchase_history · orders · point_ledger</div></div>
     </div>
-    <div class="grid g2" style="margin-top:16px">
+    <div class="grid g2" style="margin-top:12px">
       <div class="card"><h3>8 LLM tools <span class="badge b-amber">strict JSON Schema</span></h3>
         <table class="t"><tr><th>Tool</th><th>Role</th></tr>
           <tr><td class="mono" style="font-size:12.5px">get_member<br>get_purchase_history</td><td>Remaining / expiring points, purchase history → grounds for recommendations</td></tr>
@@ -239,7 +246,7 @@ body.show-notes .notes{display:block}
           <li>Every turn is logged as JSONL evidence (tool args · tokens · latency)</li>
         </ul></div>
     </div>
-    <p style="margin-top:14px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14.5px;line-height:1.55;color:#33415C">
+    <p style="margin-top:10px;padding:8px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14px;line-height:1.55;color:#33415C">
       <b>Dynamism</b> = not pre-building screens, but having the model <b>assemble the UI on the spot</b> from the question and the DB results.
       The test: "does the same Flutter code produce a different screen for every question?" <span style="color:var(--dim);font-size:13px">Product data: 226 Korean food items from Open Food Facts + 91 demo seed items</span>
     </p>
@@ -249,10 +256,10 @@ body.show-notes .notes{display:block}
 </section>
 
 <!-- ========================================================= 5. Scenario -->
-<section class="slide">
-  <div class="s-head"><div><div class="s-tag">04 · SCENARIO</div><div class="s-title">Same chat window, a different screen per question — 4 demo prompts<span class="sub">UI shapes the model actually chose in today's measured session (9 turns)</span></div></div><div class="s-meta"><div class="no">04</div></div></div>
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">04 · SCENARIO</div><div class="s-title">One chat window, a different screen per question<span class="sub">UI shapes the model actually chose in today's measured session (9 turns)</span></div></div><div class="s-meta"><div class="no">04</div></div></div>
   <div class="s-body">
-    <table class="t" style="font-size:14px">
+    <table class="t" style="font-size:13px">
       <tr><th style="width:30%">User input</th><th style="width:20%">Tools the model called (measured)</th><th style="width:22%">UI the model chose</th><th>Why this shape</th></tr>
       <tr><td><b>"Recommend winter camping gear with my remaining points"</b></td><td class="mono" style="font-size:12px">get_member → get_purchase_history(camping) → search_products ×2</td><td><span class="badge b-violet">ProductGrid</span> 3 cards + set total + add-all</td><td>Several candidates + a budget context → card grid. Purchase history (LED lantern) written onto the cards as the reason</td></tr>
       <tr><td><b>"Compare the two sleeping bags"</b></td><td class="mono" style="font-size:12px">get_product_specs(sleeping_bag_a, b)</td><td><span class="badge b-blue">ComparisonTable</span> spec rows + per-column add</td><td>Precise comparison of 2–3 items → table. Remembers the previous turn and fetches only specs, no re-search</td></tr>
@@ -260,7 +267,7 @@ body.show-notes .notes{display:block}
       <tr><td><b>"How many points do I have left?"</b></td><td class="mono" style="font-size:12px">(no tool call — reuses the earlier get_member result)</td><td><span class="badge b-amber">Text only</span> no UI</td><td>Simple lookup → decides <b>not</b> to build a screen. "UI only when needed"</td></tr>
       <tr><td>Click <b>Add</b> on a card → click <b>Proceed to checkout</b></td><td class="mono" style="font-size:12px">add_to_cart → submit_order</td><td><span class="badge b-green">CartSummary</span> → <span class="badge b-green">OrderConfirmation</span> + confirm-payment Button</td><td>The UI action becomes the next turn's input; the model chains tools and screens</td></tr>
     </table>
-    <div class="kpi" style="margin-top:14px">
+    <div class="kpi" style="margin-top:10px">
       <div class="k"><div class="v">9 turns</div><div class="l">Today's measured session (incl. 3 off-script questions)</div></div>
       <div class="k"><div class="v">4–21 s</div><div class="l">Response per turn (text streams immediately)</div></div>
       <div class="k"><div class="v">6,327</div><div class="l">Prompt tokens read from cache every turn (system prompt + tool definitions)</div></div>
@@ -272,8 +279,8 @@ body.show-notes .notes{display:block}
 </section>
 
 <!-- ========================================================= 6. One turn -->
-<section class="slide">
-  <div class="s-head"><div><div class="s-tag">05 · ONE TURN</div><div class="s-title">Anatomy of one turn — "Recommend winter camping gear with my remaining points"<span class="sub">Measured log 2026-10-14 13:47 (Opus 4.8) · 20.9 s · 849 output tokens (196 thinking) · 6,327 cache-read tokens</span></div></div><div class="s-meta"><div class="no">05</div></div></div>
+<section class="slide dense tight">
+  <div class="s-head"><div><div class="s-tag">05 · ONE TURN</div><div class="s-title">Anatomy of one turn — a winter camping request<span class="sub">"Recommend winter camping gear with my remaining points" · measured 2026-10-14 (Opus 4.8) · 20.9 s · 849 output tokens</span></div></div><div class="s-meta"><div class="no">05</div></div></div>
   <div class="s-body">
     <div class="grid" style="grid-template-columns:1.15fr 1fr;flex:1">
       <div class="steps">
@@ -303,7 +310,7 @@ body.show-notes .notes{display:block}
 
 <!-- ========================================================= 7. A2UI protocol -->
 <section class="slide">
-  <div class="s-head"><div><div class="s-tag">06 · A2UI PROTOCOL</div><div class="s-title">A2UI v0.9 — what the UI spec the model "speaks" actually looks like<span class="sub">Three message types arriving inside ```json fences between Markdown text, plus one reverse action</span></div></div><div class="s-meta"><div class="no">06</div></div></div>
+  <div class="s-head"><div><div class="s-tag">06 · A2UI PROTOCOL</div><div class="s-title">A2UI v0.9 — the UI spec the model "speaks"<span class="sub">Three message types arriving inside ```json fences between Markdown text, plus one reverse action</span></div></div><div class="s-meta"><div class="no">06</div></div></div>
   <div class="s-body">
     <div class="grid g2" style="flex:1">
       <div>
@@ -389,7 +396,7 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
 
 <!-- ========================================================= 9. Catalog -->
 <section class="slide dense">
-  <div class="s-head"><div><div class="s-tag">08 · CATALOG</div><div class="s-title">The catalog — the only thing developers build: "parts the model may use"<span class="sub">CatalogItem = name + JSON Schema + Flutter widget builder. The schema is the validation rule and the spec handed to the model</span></div></div><div class="s-meta"><div class="no">08</div></div></div>
+  <div class="s-head"><div><div class="s-tag">08 · CATALOG</div><div class="s-title">The catalog — the parts the model may use<span class="sub">The only thing developers build: name + JSON Schema + widget builder. The schema doubles as the model's spec</span></div></div><div class="s-meta"><div class="no">08</div></div></div>
   <div class="s-body">
     <div class="grid" style="grid-template-columns:1.1fr 1fr;flex:1">
       <div>
@@ -481,8 +488,8 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
 </section>
 
 <!-- ========================================================= 11. Dynamic form -->
-<section class="slide">
-  <div class="s-head"><div><div class="s-tag">10 · DYNAMIC FORM</div><div class="s-title">"Recommend canned tuna" — the model designs a form on the spot from standard parts only<span class="sub">There is no "tuna interview form" in the catalog. The model combined Column · ChoicePicker · Button and even named the action</span></div></div><div class="s-meta"><div class="no">10</div></div></div>
+<section class="slide dense tight">
+  <div class="s-head"><div><div class="s-tag">10 · DYNAMIC FORM</div><div class="s-title">"Recommend canned tuna" — a form built on the spot<span class="sub">No "tuna interview form" in the catalog: the model combined Column · ChoicePicker · Button and named the action</span></div></div><div class="s-meta"><div class="no">10</div></div></div>
   <div class="s-body">
     <div class="grid g2" style="flex:1">
       <div class="chat">
@@ -499,7 +506,7 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
         <div class="msg a"><span class="tr">▸ search_products(tags=[chunk light], …)</span>Great — narrowed down to <b>chunk light</b>. → followed by a <b>ProductGrid</b> of recommendations</div>
       </div>
       <div>
-        <div class="badge b-violet" style="margin-bottom:6px">The updateComponents the model emitted (measured, abridged) — data-model path binding is the key</div>
+        <div class="badge b-violet" style="margin-bottom:6px">The model's updateComponents (measured, abridged) — path binding is the key</div>
 <pre style="font-size:12px">{<span class="k">"id"</span>:<span class="s">"root"</span>,<span class="k">"component"</span>:<span class="s">"Column"</span>,<span class="k">"children"</span>:[<span class="s">"typePicker"</span>,<span class="s">"brandPicker"</span>,<span class="s">"btn"</span>]},
 {<span class="k">"id"</span>:<span class="s">"typePicker"</span>,<span class="k">"component"</span>:<span class="s">"ChoicePicker"</span>,<span class="k">"label"</span>:<span class="s">"Which type are you looking for?"</span>,
  <span class="k">"displayStyle"</span>:<span class="s">"chips"</span>,<span class="k">"variant"</span>:<span class="s">"mutuallyExclusive"</span>,
@@ -511,11 +518,11 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
               <span class="k">"label"</span>:<span class="s">"Get tuna recommendations"</span>}}}},
 {<span class="k">"id"</span>:<span class="s">"btnLabel"</span>,<span class="k">"component"</span>:<span class="s">"Text"</span>,<span class="k">"text"</span>:<span class="s">"Get tuna recommendations"</span>}
 <span class="c">// followed by updateDataModel seeding defaults → submitting without a selection is safe</span></pre>
-        <div class="card" style="margin-top:12px"><h3>What happened here</h3>
+        <div class="card" style="margin-top:8px"><h3>What happened here</h3>
           <ul>
-            <li><b>Choosing the UI shape</b>: judged total_matched to be large → interview instead of a list (the system-prompt guidance is "not mandatory")</li>
-            <li><b>Form submission pattern</b>: ChoicePicker value → data model <code>/tuna/type</code> → the Button context's path binding carries the value at click time</li>
-            <li><b>The action name <code>recommendTuna</code> exists nowhere in catalog or code</b> — the model defined it and interpreted it on the next turn. The FE only shows the label in the timeline</li>
+            <li><b>Choosing the UI shape</b>: total_matched was large → interview instead of a list</li>
+            <li><b>Form submission</b>: ChoicePicker → data model <code>/tuna/type</code> → Button context carries it at click time</li>
+            <li><b>Action <code>recommendTuna</code> exists nowhere in catalog or code</b> — the model defined it and read it back next turn</li>
           </ul></div>
       </div>
     </div>
