@@ -22,14 +22,18 @@
 
 ## 아키텍처
 
-```
-┌──────────────────────┐   POST /api/chat (SSE)   ┌──────────────────────────┐   tools   ┌────────────────┐
-│ genui_agent          │ ───────────────────────▶ │ shop_backend             │ ────────▶ │ PostgreSQL     │
-│ Flutter Web (genui)  │ ◀─────────────────────── │ FastAPI + Claude         │ ◀──────── │ shop_db        │
-│ 카탈로그 · 파서 ·     │  마크다운 + ```json A2UI │ 시스템 프롬프트 = A2UI   │           │ products ·     │
-│ SurfaceController    │  + ▸ tool trace 라인      │ 계약 + 카탈로그 스키마    │           │ members · …    │
-└──────────────────────┘                          └──────────────────────────┘           └────────────────┘
-        ▲ 버튼 클릭 → UserActionEvent → "[UI_ACTION] {…}" user 메시지 → 모델이 다음 도구/UI를 결정
+```mermaid
+flowchart LR
+    FE["<b>genui_agent</b><br/>Flutter Web (genui)<br/>카탈로그 · 파서 · SurfaceController"]
+    BE["<b>shop_backend</b><br/>FastAPI + Claude<br/>시스템 프롬프트 = A2UI 계약 + 카탈로그 스키마"]
+    DB[("<b>PostgreSQL shop_db</b><br/>products · members · …")]
+    FE -- "POST /api/chat (SSE)" --> BE
+    BE -. "마크다운 + A2UI JSON 블록<br/>+ ▸ tool trace 라인" .-> FE
+    BE -- tools --> DB
+    DB -. results .-> BE
+    ACT["UserActionEvent → [UI_ACTION] user 메시지<br/>모델이 다음 도구/UI를 결정"]
+    FE -. "버튼 클릭" .-> ACT
+    ACT -.-> BE
 ```
 
 - **A2UI는 모델 기능이 아니라 프롬프트 규격이다.** 시스템 프롬프트가 메시지 형식과 카탈로그 스키마를 가르치고, 클라이언트가 렌더 전에 모든 메시지를 검증한다. LLM을 바꿔도 앱은 그대로다.

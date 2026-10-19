@@ -22,14 +22,18 @@ The demo was verified against a real LLM and a real PostgreSQL database with **z
 
 ## Architecture
 
-```
-┌──────────────────────┐   POST /api/chat (SSE)   ┌──────────────────────────┐   tools   ┌────────────────┐
-│ genui_agent          │ ───────────────────────▶ │ shop_backend             │ ────────▶ │ PostgreSQL     │
-│ Flutter Web (genui)  │ ◀─────────────────────── │ FastAPI + Claude         │ ◀──────── │ shop_db        │
-│ catalog · parser ·   │  markdown + ```json A2UI │ system prompt = A2UI     │           │ products ·     │
-│ SurfaceController    │  + ▸ tool-trace lines    │ contract + catalog schema│           │ members · …    │
-└──────────────────────┘                          └──────────────────────────┘           └────────────────┘
-        ▲ button click → UserActionEvent → "[UI_ACTION] {…}" user message → model decides the next tool/UI
+```mermaid
+flowchart LR
+    FE["<b>genui_agent</b><br/>Flutter Web (genui)<br/>catalog · parser · SurfaceController"]
+    BE["<b>shop_backend</b><br/>FastAPI + Claude<br/>system prompt = A2UI contract + catalog schema"]
+    DB[("<b>PostgreSQL shop_db</b><br/>products · members · …")]
+    FE -- "POST /api/chat (SSE)" --> BE
+    BE -. "markdown + A2UI JSON blocks<br/>+ ▸ tool-trace lines" .-> FE
+    BE -- tools --> DB
+    DB -. results .-> BE
+    ACT["UserActionEvent → [UI_ACTION] user message<br/>model decides the next tool/UI"]
+    FE -. "button click" .-> ACT
+    ACT -.-> BE
 ```
 
 - **A2UI is a prompt specification, not a model feature.** The system prompt teaches the model the message format and the catalog schema; the client validates every message before rendering. Swap the LLM and the app stays the same.
