@@ -1,7 +1,7 @@
 # 설계 — GenUI 대화형 쇼핑몰 (LLM + PostgreSQL 실연동)
 
 기준일: 2026-10-14 (구현·데모 검증 완료)
-관련 문서: [HITL 구현 설명](hitl.md) · [Flutter GenUI SDK 정리](flutter_genui_sdk.md) · [동적성 검증 결과](verification/README.md) · [발표 슬라이드](slides_ko.html)
+관련 문서: [HITL 구현 설명](hitl.md) · [Flutter GenUI SDK 정리](flutter_genui_sdk.md) · [동적성 검증 결과](verification/README.md) · [발표 슬라이드](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)
 
 > **모델 이력.** 설계 당시(2026-08-27)는 Claude Opus 4.8, 2026-10-14부터 Claude Opus 5.5.
 > 변경 지점은 `.env`의 `CLAUDE_MODEL_ID` 하나다. 본문에서 "Opus 4.8"로 적힌 수치는 당시 실측 기록이다.

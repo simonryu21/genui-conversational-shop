@@ -2,7 +2,7 @@
 
 > **Conversation builds the screen.** A conversational shopping demo where the LLM decides *which UI to draw* for each question, and a Flutter app renders that spec as native widgets in real time — built on [flutter/genui](https://github.com/flutter/genui) (A2UI v0.9) and Claude.
 
-[한국어 README](README_ko.md) · [Slides (EN)](docs/slides_en.html) · [슬라이드 (KO)](docs/slides_ko.html)
+[한국어 README](README_ko.md) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)
 
 ## Introducing the demo
 
@@ -138,7 +138,7 @@ Three scenarios were run with the Flutter code frozen — different query condit
 
 ## Documentation
 
-- [Slides (English)](docs/slides_en.html) · [슬라이드 (한국어)](docs/slides_ko.html) — open in a browser; ← → to navigate, N for speaker notes
+- [Slides (English)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) · [슬라이드 (한국어)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) — open in a browser; ← → to navigate, N for speaker notes
 - [docs/architecture.md](docs/architecture.md) — full design: tools, DB schema, LLM settings, prompt strategy, API contract, sessions (Korean)
 - [docs/hitl.md](docs/hitl.md) — where and how human-in-the-loop is enforced in code (Korean, with Mermaid diagrams)
 - [docs/flutter_genui_sdk.md](docs/flutter_genui_sdk.md) — notes on the genui 0.10.x SDK internals and pitfalls (Korean)

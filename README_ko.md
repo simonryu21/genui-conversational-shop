@@ -2,7 +2,7 @@
 
 > **대화가 화면을 만든다.** 사용자의 질문을 보고 LLM이 *어떤 UI를 그릴지* 스스로 결정하고, Flutter 앱이 그 명세를 네이티브 위젯으로 실시간 렌더링하는 대화형 쇼핑 데모 — [flutter/genui](https://github.com/flutter/genui)(A2UI v0.9) + Claude.
 
-[English README](README.md) · [슬라이드 (KO)](docs/slides_ko.html) · [Slides (EN)](docs/slides_en.html)
+[English README](README.md) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html)
 
 ## 소개
 
@@ -138,7 +138,7 @@ Flutter 코드를 고정한 채 세 가지 시나리오 — 조건이 다른 질
 
 ## 문서
 
-- [슬라이드 (한국어)](docs/slides_ko.html) · [Slides (English)](docs/slides_en.html) — 브라우저로 열기, ← → 이동, N 발표 노트
+- [슬라이드 (한국어)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) · [Slides (English)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) — 브라우저로 열기, ← → 이동, N 발표 노트
 - [docs/architecture.md](docs/architecture.md) — 전체 설계: 도구, DB 스키마, LLM 설정, 프롬프트 전략, API 계약, 세션
 - [docs/hitl.md](docs/hitl.md) — HITL이 코드 어디에 어떻게 구현되어 있나 (Mermaid 다이어그램)
 - [docs/flutter_genui_sdk.md](docs/flutter_genui_sdk.md) — genui 0.10.x SDK 내부 구조와 함정 정리
