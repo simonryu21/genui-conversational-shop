@@ -28,8 +28,8 @@ body{background:var(--bg);font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial
 .slide{
   display:none;position:absolute;left:50%;top:50%;width:1280px;height:720px;
   transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center center;
-  background:var(--paper);border:1px solid var(--line);padding:44px 60px 50px;flex-direction:column;
-  box-shadow:0 20px 60px rgba(22,35,59,.10);overflow:hidden;
+  background:var(--paper);border:1px solid var(--line);padding:44px 60px 24px;flex-direction:column;
+  box-shadow:0 20px 60px rgba(22,35,59,.10);overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;
 }
 .slide.active{display:flex}
 /* 여백이 많은 슬라이드: 본문 폰트 추가 확대 */
@@ -59,7 +59,7 @@ body{background:var(--bg);font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial
 .s-title .sub{display:block;font-size:18px;font-weight:500;color:var(--dim);margin-top:8px;letter-spacing:0;line-height:1.4}
 .s-meta{text-align:right;flex:none}
 .s-meta .no{font-family:'IBM Plex Mono',monospace;font-size:52px;font-weight:600;color:var(--accent);opacity:.15;line-height:1}
-.s-body{flex:1;min-height:0;display:flex;flex-direction:column}
+.s-body{flex:1 0 auto;display:flex;flex-direction:column}
 .s-foot{position:absolute;left:60px;right:60px;bottom:18px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#93A0B5;letter-spacing:.08em}
 .s-foot .time{color:var(--accent);font-weight:600}
 
@@ -190,7 +190,6 @@ body.show-notes .notes{display:block}
     </div>
     <p class="lead" style="margin-top:16px">The key question: <b>"If every question needs a different screen, who should build that screen?"</b> — GenUI's answer: "the model, using only the parts the app allows."</p>
   </div>
-  <div class="s-foot"><span>GenUI demo · 01 WHY</span></div>
   <div class="notes">Left is the chatbot we all know. Right is what we show today. Two points: ① the model chooses the response shape ② a button click becomes the next turn. From a development standpoint the headline is "instead of N screens we built 4 parts."</div>
 </section>
 
@@ -214,7 +213,6 @@ body.show-notes .notes{display:block}
       <div class="card"><h3>③ Surface</h3><p>One chunk of UI the model created. It can be placed anywhere in the chat timeline as a <code>Surface</code> widget, and each surface owns a <b>data model</b> for form-value binding and partial updates.</p></div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 02 CONCEPT</span></div>
   <div class="notes">This picture is the whole story. Left to right: the model "speaks" JSON, the SDK turns it into widgets. Bottom arrow: what happens in the widgets goes back to the model as JSON. Hold on to the three terms — A2UI, catalog, surface — and every later slide is just detail on those three.</div>
 </section>
 
@@ -251,7 +249,6 @@ body.show-notes .notes{display:block}
       The test: "does the same Flutter code produce a different screen for every question?" <span style="color:var(--dim);font-size:13px">Product data: 226 Korean food items from Open Food Facts + 91 demo seed items</span>
     </p>
   </div>
-  <div class="s-foot"><span>GenUI demo · 03 ARCHITECTURE</span></div>
   <div class="notes">Three boxes. Flutter app on the left, agent server in the middle, 317 real products in the DB on the right. Emphasize: screen code is identical across scenarios, and tool-call traces come from real events.</div>
 </section>
 
@@ -274,7 +271,6 @@ body.show-notes .notes{display:block}
       <div class="k"><div class="v">0 lines</div><div class="l">Flutter code changed to add a scenario</div></div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 04 SCENARIO</span></div>
   <div class="notes">These are the four sentences you will see in the demo. Column 2 matters — tools the model actually called. Row 4 especially: deciding "not to build a UI" shows GenUI's maturity. Today's session also handled unprepared questions like "no, recommend again without the light one" and "compare the first one with the Sajo tuna".</div>
 </section>
 
@@ -304,7 +300,6 @@ body.show-notes .notes{display:block}
       </div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 05 ONE TURN</span></div>
   <div class="notes">Step 2 is the highlight: the first search returned nothing and the model loosened the filter on its own and searched again. A script could never do that. The "reason" on each card is not the DB summary either — the model wrote it after reading the purchase history. (Product names and prices in the mock-up vary per run, hence the placeholders.)</div>
 </section>
 
@@ -346,7 +341,6 @@ body.show-notes .notes{display:block}
       </div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 06 A2UI PROTOCOL</span></div>
   <div class="notes">Left is the model's output; top right is how a user's click goes back to the model. A frequent question — "does Claude support A2UI?" — no, it is prompt engineering. That is why the FE stays the same when you swap the LLM.</div>
 </section>
 
@@ -390,7 +384,6 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
       </div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 07 SDK INTERNALS</span></div>
   <div class="notes">A slide for the developers. What the SDK does is "parse – validate – render", and the app-side wiring is the code on the left, nothing more. Emphasize: the parser waits for incomplete JSON, and validation lives on the client.</div>
 </section>
 
@@ -445,7 +438,6 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
       </div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 08 CATALOG</span></div>
   <div class="notes">The answer to "so what do developers do?" We built four parts, each a schema plus a widget builder. The charm of GenUI is that the schema doubles as the manual handed to the model. We own the design, the model owns the content.</div>
 </section>
 
@@ -483,7 +475,6 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
         </ul></div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 09 WHAT THE LLM SEES</span></div>
   <div class="notes">The answer to "what do you give the LLM?" Not just the question — three chunks. The code in the middle is the point: the Flutter catalog schema transcribed into human-readable sentences. Hence the trade-off of maintaining two places. Mention PromptBuilder as the alternative and move on.</div>
 </section>
 
@@ -527,7 +518,6 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
       </div>
     </div>
   </div>
-  <div class="s-foot"><span>GenUI demo · 10 DYNAMIC FORM</span></div>
   <div class="notes">The most "generative" moment. Nobody designed the tuna form. The model composed it from three standard parts, named the button action itself, and interpreted that action on the next turn by itself. Be sure to show this scene in the demo.</div>
 </section>
 
@@ -552,7 +542,7 @@ surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// cl
     else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
     else if(e.key==='p'||e.key==='P')window.print();
   });
-  document.addEventListener('click',e=>{if(e.target.closest('.hud,.notes,a'))return;const x=e.clientX/window.innerWidth;show(x>0.5?i+1:i-1);});
+  document.addEventListener('click',e=>{if(e.target.closest('.hud,.notes,a'))return;if(e.target.classList&&e.target.classList.contains('slide')&&e.offsetX>e.target.clientWidth)return;const x=e.clientX/window.innerWidth;show(x>0.5?i+1:i-1);});
 })();
 </script>
 </body>
