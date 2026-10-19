@@ -1,0 +1,616 @@
+# 질의: 남은 포인트로 겨울 캠핑 용품 추천해줘
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `get_member(member_id=m-001)`  
+data: 
+
+event: chunk
+data: ▸ `get_purchase_history(member_id=m-001, category=캠핑)`  
+data: 
+
+event: chunk
+data: ▸ `search_products(query=겨울 캠핑 보온, category=캠핑, in_stock_only=True, sort=relevance, limit=10)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `search_products(query=겨울 캠핑, category=캠핑, in_stock_only=True, sort=relevance, limit=15)`  
+data: 
+
+event: chunk
+data: ▸ `search_products(query=보온, category=캠핑, in_stock_only=True, sort=relevance, limit=15)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: 작
+
+event: chunk
+data: 년 11월 **
+
+event: chunk
+data: LED 
+
+event: chunk
+data: 랜턴**,
+
+event: chunk
+data:  올
+
+event: chunk
+data:  
+
+event: chunk
+data: 3
+
+event: chunk
+data: 월 **캠핑 
+
+event: chunk
+data: 체어**
+
+event: chunk
+data: 를 구
+
+event: chunk
+data: 매하
+
+event: chunk
+data: 신 
+
+event: chunk
+data: 캠핑족
+
+event: chunk
+data: 이
+
+event: chunk
+data: 시네요! 
+
+event: chunk
+data: 🏕️
+
+event: chunk
+data: 
+data: 
+data: 무
+
+event: chunk
+data: 엇보다 중요한 
+
+event: chunk
+data: 소
+
+event: chunk
+data: 식:
+
+event: chunk
+data:  
+
+event: chunk
+data: 잔여 복
+
+event: chunk
+data: 지
+
+event: chunk
+data: 포인트 **180
+
+event: chunk
+data: ,000P
+
+event: chunk
+data: **
+
+event: chunk
+data:  중 **120
+
+event: chunk
+data: ,000P가
+
+event: chunk
+data:  D
+
+event: chunk
+data: -4
+
+event: chunk
+data:  
+
+event: chunk
+data: (8
+
+event: chunk
+data: /31 
+
+event: chunk
+data: 소
+
+event: chunk
+data: 멸)**
+
+event: chunk
+data:  예정이에요. 
+
+event: chunk
+data: 소
+
+event: chunk
+data: 멸 전
+
+event: chunk
+data: 에 알
+
+event: chunk
+data: 차
+
+event: chunk
+data: 게
+
+event: chunk
+data:  쓰실
+
+event: chunk
+data:  수 있도록 보
+
+event: chunk
+data: 온 중
+
+event: chunk
+data: 심으
+
+event: chunk
+data: 로 골
+
+event: chunk
+data: 랐
+
+event: chunk
+data: 고
+
+event: chunk
+data: , 아
+
+event: chunk
+data: 래 4
+
+event: chunk
+data: 종
+
+event: chunk
+data:  세
+
+event: chunk
+data: 트 
+
+event: chunk
+data: 합계
+
+event: chunk
+data: 가
+
+event: chunk
+data:  소
+
+event: chunk
+data: 멸 포인트 
+
+event: chunk
+data: 안에 
+
+event: chunk
+data: 딱 들
+
+event: chunk
+data: 어
+
+event: chunk
+data: 옵니다.
+data: 
+data: ```
+
+event: chunk
+data: json
+data: {"
+
+event: chunk
+data: version":"v
+
+event: chunk
+data: 0.9","create
+
+event: chunk
+data: Sur
+
+event: chunk
+data: face":{"sur
+
+event: chunk
+data: f
+
+event: chunk
+data: aceId":"sh
+
+event: chunk
+data: op-1
+
+event: chunk
+data: ","cat
+
+event: chunk
+data: alogId":"com
+
+event: chunk
+data: .lg
+
+event: chunk
+data: cns
+
+event: chunk
+data: .wel
+
+event: chunk
+data: f
+
+event: chunk
+data: are-shop","s
+
+event: chunk
+data: endD
+
+event: chunk
+data: ataMod
+
+event: chunk
+data: el":true}}
+data: ```
+
+event: chunk
+data: 
+data: ```json
+data: {"version":"
+
+event: chunk
+data: v0.9","upd
+
+event: chunk
+data: ateCom
+
+event: chunk
+data: ponents":{"surf
+
+event: chunk
+data: aceId":"shop-
+
+event: chunk
+data: 1","components":[
+
+event: chunk
+data: {"id":"root
+
+event: chunk
+data: ","component":"
+
+event: chunk
+data: ProductGrid","title
+
+event: chunk
+data: ":"겨울 캠
+
+event: chunk
+data: 핑 보온 세
+
+event: chunk
+data: 트 (소멸 포
+
+event: chunk
+data: 인트 소
+
+event: chunk
+data: 진용
+
+event: chunk
+data: )","products":[{
+
+event: chunk
+data: "product
+
+event: chunk
+data: Id":"s
+
+event: chunk
+data: leeping_bag_a
+
+event: chunk
+data: ","em
+
+event: chunk
+data: oji":"🛏️
+
+event: chunk
+data: ","name":"동계 머
+
+event: chunk
+data: 미형 침낭 (
+
+event: chunk
+data: -15℃)","price
+
+event: chunk
+data: ":129000,"re
+
+event: chunk
+data: ason":"랜턴 
+
+event: chunk
+data: 구매 이력 → 
+
+event: chunk
+data: 동계 보온의
+
+event: chunk
+data:  핵심,
+
+event: chunk
+data:  재구
+
+event: chunk
+data: 매율 92%"},{
+
+event: chunk
+data: "productId":"down_bl
+
+event: chunk
+data: anket","emoji":"
+
+event: chunk
+data: 🧣","name":"경
+
+event: chunk
+data: 량 구스다운 블
+
+event: chunk
+data: 랭킷","price":27
+
+event: chunk
+data: 000,"reason":"침
+
+event: chunk
+data: 낭과 레이어링
+
+event: chunk
+data: ,
+
+event: chunk
+data:  잔여 포인트
+
+event: chunk
+data:  소진에 최적"
+
+event: chunk
+data: },{"productId":"th
+
+event: chunk
+data: ermos_1l","emo
+
+event: chunk
+data: ji":"🫖","name
+
+event: chunk
+data: ":"스텐 보온
+
+event: chunk
+data: 병 1L","price":24
+
+event: chunk
+data: 000,"reason":"
+
+event: chunk
+data: 겨울 
+
+event: chunk
+data: 캠핑 따뜻
+
+event: chunk
+data: 한 음
+
+event: chunk
+data: 료 필수템
+
+event: chunk
+data: ,
+
+event: chunk
+data:  재구매율 89%
+
+event: chunk
+data: "},{"productId":"
+
+event: chunk
+data: hot_pack_50","
+
+event: chunk
+data: emoji":"
+
+event: chunk
+data: ♨️","name":"붙
+
+event: chunk
+data: 이는 핫팩 
+
+event: chunk
+data: 50매 대용량","price
+
+event: chunk
+data: ":12900,"reason":
+
+event: chunk
+data: "체
+
+event: chunk
+data: 온 유
+
+event: chunk
+data: 지 가
+
+event: chunk
+data: 성
+
+event: chunk
+data: 비, 재구매율 
+
+event: chunk
+data: 91%"}],"show
+
+event: chunk
+data: Total":true,"add
+
+event: chunk
+data: AllL
+
+event: chunk
+data: abel":"세
+
+event: chunk
+data: 트 전체
+
+event: chunk
+data:  담
+
+event: chunk
+data: 기 (192
+
+event: chunk
+data: ,900P)"}]}
+
+event: chunk
+data: }
+
+event: chunk
+data: 
+data: ```
+data: 
+data: 세
+
+event: chunk
+data: 트 4
+
+event: chunk
+data: 종 합계는 **192
+
+event: chunk
+data: ,900P**로
+
+event: chunk
+data:  
+
+event: chunk
+data: 총
+
+event: chunk
+data:  잔여(
+
+event: chunk
+data: 180,000P)
+
+event: chunk
+data: 를
+
+event: chunk
+data:  살
+
+event: chunk
+data: 짝 넘
+
+event: chunk
+data: 어요. 침
+
+event: chunk
+data: 낭 없
+
+event: chunk
+data: 이
+
+event: chunk
+data:  3
+
+event: chunk
+data: 종(63
+
+event: chunk
+data: ,900P)
+
+event: chunk
+data: 만
+
+event: chunk
+data:  담
+
+event: chunk
+data: 거나, 미
+
+event: chunk
+data: 니 가스히터·
+
+event: chunk
+data: 자
+
+event: chunk
+data: 충 매트·경
+
+event: chunk
+data: 량 패딩 등
+
+event: chunk
+data: 으
+
+event: chunk
+data: 로 조
+
+event: chunk
+data: 합을 바꿀
+
+event: chunk
+data:  수도 있습니다
+
+event: chunk
+data: . 원
+
+event: chunk
+data: 하시는
+
+event: chunk
+data:  구
+
+event: chunk
+data: 성을 말
+
+event: chunk
+data: 씀해 주시
+
+event: chunk
+data: 면 조
+
+event: chunk
+data: 정해 드릴게요
+
+event: chunk
+data: ! 🙌
+
+event: done
+data: {"points": 180000}
+

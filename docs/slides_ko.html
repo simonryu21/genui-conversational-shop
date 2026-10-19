@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GenUI — 대화가 화면을 만든다 · 대화형 쇼핑몰 데모</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EDF3; --paper:#FBFCFE; --card:#FFFFFF; --ink:#16233B; --dim:#5A6A85; --line:#DDE3EC;
+  --blue:#1D63D8; --blue-soft:#EDF3FC; --teal:#0E9A85; --teal-soft:#E9F6F3;
+  --violet:#7A5CC9; --violet-soft:#F2EFFA; --green:#2E8F55; --green-soft:#EAF4EE;
+  --amber:#B7791F; --amber-soft:#FBF3E3; --red:#C94D57; --red-soft:#FBEDEE;
+  --accent:var(--violet); --accent-soft:var(--violet-soft);
+  --scale:1;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);font-family:'IBM Plex Sans KR','Noto Sans KR','Malgun Gothic',sans-serif;color:var(--ink);overflow:hidden}
+.mono{font-family:'IBM Plex Mono','Consolas',monospace}
+
+/* ---------- deck / slide ----------
+   슬라이드는 1280x720 캔버스로 설계하고, 화면 크기에 맞춰 통째로 확대/축소한다.
+   글자 크기가 화면 크기에 비례해 커진다 (FHD 프로젝터에서 1.5배). */
+.deck{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.slide{
+  display:none;position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center center;
+  background:var(--paper);border:1px solid var(--line);padding:44px 60px 50px;flex-direction:column;
+  box-shadow:0 20px 60px rgba(22,35,59,.10);overflow:hidden;
+}
+.slide.active{display:flex}
+/* 여백이 많은 슬라이드: 본문 폰트 추가 확대 */
+.slide.roomy .card h3{font-size:20px;margin-bottom:12px}
+.slide.roomy .card p,.slide.roomy .card li{font-size:18px;line-height:1.7}
+.slide.roomy .card li+li{margin-top:8px}
+.slide.roomy .card{padding:22px 26px}
+.slide.roomy .flow .box .t{font-size:17px}
+.slide.roomy .flow .box .d{font-size:14.5px}
+.slide.roomy .loopbar{font-size:15px;padding:10px 14px}
+.slide.roomy .lead{font-size:22px}
+/* 내용이 빽빽한 슬라이드: 표·카드 패딩 축소 */
+.slide.dense table.t{font-size:13.5px}
+.slide.dense table.t td,.slide.dense table.t th{padding:7px 10px}
+.slide.dense .card{padding:13px 16px}
+.slide.dense .card p,.slide.dense .card li{font-size:14.5px;line-height:1.5}
+.s-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:20px}
+.s-tag{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.14em;color:var(--accent);font-weight:600;margin-bottom:8px}
+.s-title{font-size:36px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.s-title .sub{display:block;font-size:18px;font-weight:500;color:var(--dim);margin-top:8px;letter-spacing:0;line-height:1.4}
+.s-meta{text-align:right;flex:none}
+.s-meta .no{font-family:'IBM Plex Mono',monospace;font-size:52px;font-weight:600;color:var(--accent);opacity:.15;line-height:1}
+.s-body{flex:1;min-height:0;display:flex;flex-direction:column}
+.s-foot{position:absolute;left:60px;right:60px;bottom:18px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#93A0B5;letter-spacing:.08em}
+.s-foot .time{color:var(--accent);font-weight:600}
+
+/* ---------- common blocks ---------- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+.card h3{font-size:17px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p,.card li{font-size:15.5px;line-height:1.55;color:#33415C}
+.card ul{padding-left:18px}
+.card li+li{margin-top:3px}
+.card.tint{background:var(--accent-soft);border-color:transparent}
+.badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;border-radius:3px;padding:2px 7px;letter-spacing:.02em;vertical-align:middle}
+.b-blue{color:var(--blue);background:var(--blue-soft)}.b-teal{color:var(--teal);background:var(--teal-soft)}
+.b-violet{color:var(--violet);background:var(--violet-soft)}.b-green{color:var(--green);background:var(--green-soft)}
+.b-amber{color:var(--amber);background:var(--amber-soft)}.b-red{color:var(--red);background:var(--red-soft)}
+.lead{font-size:20px;line-height:1.6;color:#33415C}
+.lead b{color:var(--ink)}
+pre{font-family:'IBM Plex Mono','Consolas',monospace;font-size:12.5px;line-height:1.5;background:#1B2437;color:#E6ECF5;border-radius:6px;padding:14px 16px;overflow:hidden;white-space:pre-wrap;word-break:break-all}
+pre .k{color:#8FB8FF}pre .s{color:#B6E3A7}pre .n{color:#F6C177}pre .c{color:#8A97AE}pre .h{color:#FFD166;font-weight:600}
+code{font-family:'IBM Plex Mono','Consolas',monospace;font-size:.92em;background:#EFF2F6;padding:1px 5px;border-radius:3px}
+table.t{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);font-size:14.5px}
+table.t th{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;font-weight:600;color:var(--dim);background:#F3F6FA;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;color:#33415C}
+table.t td b{color:var(--ink)}
+.kpi{display:flex;gap:14px}
+.kpi .k{flex:1;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.kpi .k .v{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;color:var(--accent)}
+.kpi .k .l{font-size:13px;color:var(--dim);margin-top:2px;line-height:1.4}
+
+/* ---------- flow diagram ---------- */
+.flow{display:flex;align-items:stretch;gap:0;margin:6px 0}
+.flow .box{flex:1;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 12px;text-align:center}
+.flow .box .t{font-size:15px;font-weight:700}
+.flow .box .d{font-size:13px;color:var(--dim);margin-top:4px;line-height:1.45}
+.flow .box.acc{border-color:var(--accent);background:var(--accent-soft)}
+.flow .arr{flex:none;width:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--accent);font-size:22px;line-height:1}
+.flow .arr:has(small){width:86px}
+.flow .arr small{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--dim);display:block;text-align:center;line-height:1.3;margin-top:4px;white-space:normal}
+.loopbar{margin-top:8px;border:1px dashed var(--accent);border-radius:6px;padding:8px 14px;font-size:14px;color:var(--accent);text-align:center;font-weight:600}
+
+/* ---------- step list ---------- */
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:9px}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.step::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step .st{font-size:15.5px;font-weight:700}
+.step .sd{font-size:14px;color:#33415C;line-height:1.5;margin-top:2px}
+
+/* ---------- chat mock ---------- */
+.chat{background:#F2F4F8;border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:9px;font-size:14px}
+.msg{max-width:88%;padding:9px 12px;border-radius:4px;line-height:1.5}
+.msg.u{align-self:flex-end;background:var(--violet);color:#fff}
+.msg.ua{align-self:flex-end;background:#E3E7EE;color:#4A566B;font-size:13.5px}
+.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.msg .tr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);display:block}
+.gen{align-self:flex-start;width:92%;background:#fff;border:1px solid var(--line);border-left:4px solid var(--violet);padding:10px 12px}
+.gen .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--violet);font-weight:700}
+.gen .ttl{font-weight:700;font-size:14px;margin:4px 0 8px}
+.pcards{display:flex;gap:8px}
+.pc{flex:1;max-width:210px;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:13px}
+.pc .e{font-size:22px}.pc .nm{font-weight:600;margin-top:2px}.pc .pr{color:var(--violet);font-weight:700}.pc .rs{color:var(--dim);font-size:12px;margin-top:3px}
+.pc .btn{display:inline-block;margin-top:6px;border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+.chip{border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:13px}
+.chip.on{background:var(--violet-soft);border-color:var(--violet);color:var(--violet);font-weight:600}
+.pbtn{display:inline-block;background:var(--violet);color:#fff;border-radius:4px;padding:5px 12px;font-size:13px;font-weight:600}
+
+/* ---------- title slide ---------- */
+.slide.title{justify-content:center;background:linear-gradient(135deg,#FBFCFE 0%,#F2EFFA 100%)}
+.slide.title .s-tag{font-size:16px}
+.slide.title h1{font-size:60px;font-weight:700;letter-spacing:-.02em;line-height:1.12;margin:12px 0 22px}
+.slide.title h1 em{font-style:normal;color:var(--violet)}
+.slide.title .lead{font-size:22px;max-width:980px}
+.slide.title .meta{margin-top:44px;display:flex;gap:28px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--dim)}
+
+/* ---------- notes & hud ---------- */
+.notes{display:none;position:absolute;left:0;right:0;bottom:0;background:#16233B;color:#E6ECF5;padding:14px 60px 18px;font-size:14.5px;line-height:1.6;border-top:3px solid var(--violet);max-height:38%;overflow:auto}
+.notes b{color:#FFD166}
+body.show-notes .notes{display:block}
+.hud{position:fixed;right:18px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:4px;padding:5px 10px;z-index:9}
+.hud b{color:var(--violet)}
+@media print{
+  body{overflow:visible;background:#fff}
+  .deck{position:static;display:block;width:auto;height:auto}
+  .slide{display:flex !important;position:relative;left:auto;top:auto;transform:none;width:1280px;height:720px;page-break-after:always;margin:0 auto;box-shadow:none}
+  .hud,.notes{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ========================================================= 1. 타이틀 -->
+<section class="slide title active">
+  <div class="s-tag">GENUI · GENERATIVE UI · FLUTTER × CLAUDE</div>
+  <h1>대화가 <em>화면</em>을 만든다<br>— 대화형 쇼핑몰 GenUI 데모</h1>
+  <p class="lead">사용자의 질문을 보고 <b>LLM이 어떤 UI를 그릴지 스스로 결정</b>하고, Flutter 앱은 그 명세를 <b>네이티브 위젯으로 실시간 렌더링</b>합니다.
+  화면마다 Flutter 코드를 미리 짜 두지 않아도, DB 조회 결과에 따라 매번 다른 화면이 조립됩니다.</p>
+  <div class="meta">
+    <span>flutter/genui 0.10.2 · A2UI v0.9</span><span>Claude Opus 5.5 on AWS Bedrock</span><span>PostgreSQL shop_db · 상품 317종</span><span>2026-10</span>
+  </div>
+  <div class="notes">오늘은 "생성형 UI"라는 개념을 실제 돌아가는 데모로 보여드립니다. 10분 발표 후 라이브 데모 5분. 키워드 하나만 기억해 주시면 됩니다 — <b>"UI를 미리 만들어 두는 게 아니라, 대화 중에 모델이 조립한다."</b></div>
+</section>
+
+<!-- ========================================================= 2. 문제의식 -->
+<section class="slide roomy">
+  <div class="s-head"><div><div class="s-tag">01 · WHY</div><div class="s-title">챗봇의 한계 — 답은 맞는데 화면이 없다<span class="sub">텍스트만 돌려주는 에이전트 vs. 상황에 맞는 UI를 "함께" 만드는 에이전트</span></div></div><div class="s-meta"><div class="no">01</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div class="card">
+        <h3><span class="badge b-red">AS-IS</span> 텍스트 챗봇</h3>
+        <ul>
+          <li>상품 3개 추천 → 긴 문단으로 나열, 가격 비교는 사용자가 머릿속에서</li>
+          <li>"담기"를 하려면 다시 타이핑하거나 다른 화면으로 이동</li>
+          <li>조건을 좁히려면 질문-답변을 여러 번 반복</li>
+          <li>개발자가 모든 응답 화면을 <b>미리 설계</b>해야 함 → 시나리오 수만큼 화면 수가 늘어남</li>
+        </ul>
+      </div>
+      <div class="card tint">
+        <h3><span class="badge b-violet">TO-BE</span> 생성형 UI(GenUI) 에이전트</h3>
+        <ul>
+          <li>추천이면 <b>카드 그리드</b>, 비교면 <b>비교표</b>, 후보가 많으면 <b>선택 폼</b>, 단순 조회면 <b>텍스트만</b></li>
+          <li>카드의 버튼 클릭이 <b>곧바로 다음 대화 턴</b>이 됨 (UI 이벤트가 대화의 일급 시민)</li>
+          <li>개발자는 "쓸 수 있는 부품(카탈로그)"만 정의, <b>조립은 모델이</b></li>
+          <li>디자인 시스템·안전 범위는 앱이 통제 — 모델은 허용된 부품만 사용 가능</li>
+        </ul>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px">핵심 질문: <b>"질문마다 다른 화면이 필요하다면, 그 화면을 누가 만들어야 하는가?"</b> — GenUI의 답은 "모델이, 단 앱이 허용한 부품으로."</p>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 01 WHY</span></div>
+  <div class="notes">왼쪽은 우리가 익숙한 챗봇. 오른쪽이 오늘 보여드릴 것. 포인트는 두 가지: ① 응답 형태를 모델이 고른다 ② 버튼 클릭이 다음 턴이 된다. 개발 관점에선 "화면을 N개 만드는 대신 부품 4개를 만들었다"가 핵심.</div>
+</section>
+
+<!-- ========================================================= 3. GenUI 핵심 루프 -->
+<section class="slide roomy">
+  <div class="s-head"><div><div class="s-tag">02 · CONCEPT</div><div class="s-title">GenUI 한 장 요약 — "UI 명세를 스트리밍하고, 액션을 되돌려 받는다"<span class="sub">Google Flutter 팀의 생성형 UI SDK. 모델은 JSON을 말하고, 앱은 위젯으로 번역한다</span></div></div><div class="s-meta"><div class="no">02</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box"><div class="t">👤 사용자</div><div class="d">"겨울 캠핑 용품 추천해줘"<br>또는 카드의 <b>담기</b> 클릭</div></div>
+      <div class="arr">→</div>
+      <div class="box acc"><div class="t">🤖 에이전트 (LLM)</div><div class="d">도구로 DB 조회 →<br>마크다운 텍스트 + <b>A2UI JSON</b><br>한 스트림에 섞어 출력</div></div>
+      <div class="arr">→<small>stream</small></div>
+      <div class="box"><div class="t">📦 genui SDK</div><div class="d">A2uiTransportAdapter 파싱<br>SurfaceController 검증·상태<br>Surface 위젯 빌드</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">📱 Flutter 앱</div><div class="d"><b>네이티브 위젯</b> 렌더링<br>카드 · 비교표 · 폼 · 버튼</div></div>
+    </div>
+    <div class="loopbar">↩ 버튼 클릭 · 선택 → UserActionEvent → UiInteractionPart JSON → 다시 에이전트로 (피드백 루프)</div>
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card"><h3>① A2UI 프로토콜</h3><p>에이전트와 앱 사이의 <b>계약</b>. <code>createSurface</code> → <code>updateComponents</code> → <code>updateDataModel</code> 3종 메시지와 역방향 <code>action</code> 1종. 모델 차원 기능이 아니라 <b>순수 프롬프트 규격</b>이라 어떤 LLM이든 쓸 수 있습니다.</p></div>
+      <div class="card"><h3>② 카탈로그 (Catalog)</h3><p>앱이 모델에게 허용하는 <b>부품 사전</b>. 기본 제공(Text, Column, Button, ChoicePicker…) + 도메인 커스텀(ProductGrid 등). 각 부품의 JSON Schema가 <b>검증 규칙이자 프롬프트</b>가 됩니다.</p></div>
+      <div class="card"><h3>③ 서피스 (Surface)</h3><p>모델이 만든 UI 한 덩어리. 채팅 타임라인 어디든 <code>Surface</code> 위젯으로 끼워 넣을 수 있고, 서피스마다 <b>데이터 모델</b>을 가져 폼 값 바인딩·부분 갱신이 가능합니다.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 02 CONCEPT</span></div>
+  <div class="notes">그림 한 장이 전부입니다. 왼→오: 모델이 JSON을 "말하면" SDK가 위젯으로 바꾼다. 아래 화살표: 위젯에서 일어난 일이 JSON으로 모델에게 돌아간다. 세 용어(A2UI, 카탈로그, 서피스)만 잡고 가시면 이후 슬라이드가 전부 이 셋의 세부입니다.</div>
+</section>
+
+<!-- ========================================================= 4. 데모 아키텍처 -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">03 · ARCHITECTURE</div><div class="s-title">데모 구성 — 실제 LLM + 실제 DB로 "동적성"을 검증<span class="sub">모델이 DB를 직접 조회하고, 그 결과를 보고 화면을 결정하는지 확인</span></div></div><div class="s-meta"><div class="no">03</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box"><div class="t">Flutter Web (Chrome)</div><div class="d"><span class="badge b-blue">genui 0.10.2</span><br>커스텀 카탈로그 4종 + 표준 부품<br>SSE 수신 → 파서 → 네이티브 위젯</div></div>
+      <div class="arr">⇄<small>POST /api/chat<br>SSE</small></div>
+      <div class="box acc"><div class="t">FastAPI 에이전트 서버</div><div class="d"><span class="badge b-violet">Claude Opus 5.5 · Bedrock</span><br>adaptive thinking · tool loop (최대 8회)<br>시스템 프롬프트 = A2UI 계약 + 카탈로그 스키마</div></div>
+      <div class="arr">⇄<small>tools</small></div>
+      <div class="box"><div class="t">PostgreSQL shop_db</div><div class="d"><span class="badge b-teal">상품 317종</span><br>members · products(specs JSONB)<br>purchase_history · orders · point_ledger</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3>LLM 도구 8종 <span class="badge b-amber">strict JSON Schema</span></h3>
+        <table class="t"><tr><th>도구</th><th>역할</th></tr>
+          <tr><td class="mono" style="font-size:12.5px">get_member<br>get_purchase_history</td><td>잔여·소멸예정 포인트, 구매 이력 → 추천 근거</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">search_products<br>get_product_specs</td><td>키워드·카테고리·태그·가격 검색, 스펙 JSONB → 비교표 소재</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">add_to_cart<br>remove_from_cart</td><td>세션 장바구니 (DB 쓰기 없음)</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">submit_order<br>confirm_payment</td><td>가예약 → 결제 확정 (유일한 DB 쓰기)</td></tr>
+        </table></div>
+      <div class="card"><h3>검증 설계 원칙</h3>
+        <ul>
+          <li><b>화면 코드는 고정</b> — 렌더링 파이프라인·카탈로그는 시나리오와 무관하게 동일</li>
+          <li>BE → FE 스트림은 <b>단일 계약</b>: 마크다운 + <code>```json</code> A2UI 블록 + <code>▸ tool trace</code> 라인</li>
+          <li>tool trace는 <b>실제 tool_use 이벤트</b>에서 생성 — 모델이 지어내지 않음</li>
+          <li>UI 액션(담기·결제)도 하드코딩 라우팅 없이 <b>모델이 판단</b>해 도구 호출</li>
+          <li>모든 턴은 JSONL 로그로 증적 (도구 인자·토큰·지연시간)</li>
+        </ul></div>
+    </div>
+    <p style="margin-top:14px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14.5px;line-height:1.55;color:#33415C">
+      <b>동적성</b> = 화면을 미리 만들어 두는 것이 아니라, 질문과 DB 조회 결과를 보고 모델이 <b>그때그때 UI를 조립</b>하는 성질.
+      검증 목표는 "같은 Flutter 코드로도 질문마다 화면이 달라지는가". <span style="color:var(--dim);font-size:13px">상품 데이터: Open Food Facts 한국 식품 226종 + 데모 시드 91종</span>
+    </p>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 03 ARCHITECTURE</span></div>
+  <div class="notes">세 상자. 왼쪽 Flutter 앱, 가운데 에이전트 서버, 오른쪽 DB엔 실제 상품 317종. 강조할 것: 화면 코드는 시나리오와 무관하게 동일하다는 점, 그리고 도구 호출 흔적은 실제 이벤트에서 나온다는 점.</div>
+</section>
+
+<!-- ========================================================= 5. 데모 시나리오 -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">04 · SCENARIO</div><div class="s-title">같은 채팅창, 질문마다 다른 화면 — 데모 프롬프트 4개<span class="sub">오늘 실측 세션(9턴)에서 모델이 실제로 선택한 UI 형태</span></div></div><div class="s-meta"><div class="no">04</div></div></div>
+  <div class="s-body">
+    <table class="t" style="font-size:14px">
+      <tr><th style="width:30%">사용자 입력</th><th style="width:20%">모델이 호출한 도구 (실측)</th><th style="width:22%">모델이 선택한 UI</th><th>왜 이 형태인가</th></tr>
+      <tr><td><b>"남은 포인트로 겨울 캠핑 용품 추천해줘"</b></td><td class="mono" style="font-size:12px">get_member → get_purchase_history(캠핑) → search_products ×2</td><td><span class="badge b-violet">ProductGrid</span> 카드 3종 + 세트 합계 + 전체 담기</td><td>후보 여러 개 + 예산 맥락 → 카드 그리드. 구매 이력(LED 랜턴)을 추천 근거로 카드에 기재</td></tr>
+      <tr><td><b>"침낭 두 개 비교해줘"</b></td><td class="mono" style="font-size:12px">get_product_specs(sleeping_bag_a, b)</td><td><span class="badge b-blue">ComparisonTable</span> 스펙 행 비교 + 열별 담기</td><td>2~3개 정밀 비교 → 표. 직전 턴 결과를 기억해 재검색 없이 스펙만 조회</td></tr>
+      <tr><td><b>"참치캔 추천해줘"</b></td><td class="mono" style="font-size:12px">search_products(참치캔, sort=repurchase)</td><td><span class="badge b-teal">인터뷰 폼</span> Column + ChoicePicker×2 + Button</td><td>후보 과다 → 나열 대신 조건을 묻는 폼을 <b>표준 부품만으로 즉석 조립</b></td></tr>
+      <tr><td><b>"잔여 포인트 얼마야?"</b></td><td class="mono" style="font-size:12px">(도구 호출 없음 — 앞선 get_member 결과 재사용)</td><td><span class="badge b-amber">텍스트만</span> UI 없음</td><td>단순 조회 → 화면을 만들지 <b>않기로</b> 판단. "UI는 필요할 때만"</td></tr>
+      <tr><td>카드에서 <b>담기</b> 클릭 → <b>결제 단계로 진행</b> 클릭</td><td class="mono" style="font-size:12px">add_to_cart → submit_order</td><td><span class="badge b-green">CartSummary</span> → <span class="badge b-green">OrderConfirmation</span> + 결제 확정 Button</td><td>UI 액션이 다음 턴 입력이 되고, 모델이 도구와 화면을 이어서 결정</td></tr>
+    </table>
+    <div class="kpi" style="margin-top:14px">
+      <div class="k"><div class="v">9턴</div><div class="l">오늘 실측 세션 (스크립트 밖 질문 3개 포함)</div></div>
+      <div class="k"><div class="v">4~21초</div><div class="l">턴당 응답 (텍스트는 즉시 스트리밍)</div></div>
+      <div class="k"><div class="v">6,327</div><div class="l">턴마다 캐시에서 읽은 프롬프트 토큰 (시스템 프롬프트 + 도구 정의)</div></div>
+      <div class="k"><div class="v">0줄</div><div class="l">시나리오 추가를 위해 수정한 Flutter 코드</div></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 04 SCENARIO</span></div>
+  <div class="notes">데모에서 보실 네 문장입니다. 표의 2열이 중요 — 모델이 실제로 호출한 도구. 특히 4번째 줄, "UI를 안 만들기로" 한 판단이 GenUI의 성숙도를 보여줍니다. 오늘 세션에선 "아니 라이트 아닌 걸로 다시 추천해줘", "첫번째 꺼랑 사조참치랑 비교해줘" 같은 준비 안 된 질문도 처리됐습니다.</div>
+</section>
+
+<!-- ========================================================= 6. 한 턴 해부 -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">05 · ONE TURN</div><div class="s-title">한 턴 해부 — "남은 포인트로 겨울 캠핑 용품 추천해줘"<span class="sub">실측 로그 2026-10-14 13:47 (Opus 4.8) · 20.9초 · 출력 849토큰(thinking 196) · 캐시 읽기 6,327토큰</span></div></div><div class="s-meta"><div class="no">05</div></div></div>
+  <div class="s-body">
+    <div class="grid" style="grid-template-columns:1.15fr 1fr;flex:1">
+      <div class="steps">
+        <div class="step"><div><div class="st">FE → BE: 텍스트 메시지 전송</div><div class="sd"><code>{"type":"text","text":"남은 포인트로 겨울 캠핑 용품 추천해줘"}</code> + session_id. 응답은 SSE 스트림.</div></div></div>
+        <div class="step"><div><div class="st">모델이 도구 4회 호출 (자율 판단)</div><div class="sd"><code>get_member(m-001)</code> → 포인트·소멸 D-day · <code>get_purchase_history(캠핑)</code> → LED 랜턴 이력 · <code>search_products(query="겨울 캠핑 보온")</code> → <b>결과 0건</b> · 모델이 스스로 조건을 풀어 <code>search_products(category=캠핑, limit=20)</code> 재검색 → 후보 확보</div></div></div>
+        <div class="step"><div><div class="st">텍스트 스트리밍 시작</div><div class="sd">"작년에 LED 랜턴을 구매하신 이력이 있어 보온 중심으로…" — 화면 말풍선에 <b>타이핑되듯</b> 즉시 표시. 도구 호출마다 <code>▸ get_member(member_id=m-001)</code> trace 라인이 끼어듦.</div></div></div>
+        <div class="step"><div><div class="st">A2UI JSON 2블록 스트리밍</div><div class="sd"><code>createSurface(shop-1)</code> → <code>updateComponents(root=ProductGrid, products=[3], showTotal, addAllLabel)</code>. 64자 단위 조각으로 와도 파서가 재조립.</div></div></div>
+        <div class="step"><div><div class="st">SDK 검증 → Surface 렌더</div><div class="sd">SurfaceController가 카탈로그 스키마로 검증 후 서피스 등록 → 타임라인에 <code>Surface</code> 위젯 추가 → <b>ProductGrid 카드 3장</b>이 네이티브 위젯으로 등장.</div></div></div>
+      </div>
+      <div class="chat">
+        <div class="msg u">남은 포인트로 겨울 캠핑 용품 추천해줘</div>
+        <div class="msg a"><span class="tr">▸ get_member(member_id=m-001)</span><span class="tr">▸ get_purchase_history(member_id=m-001, category=캠핑)</span><span class="tr">▸ search_products(query=겨울 캠핑 보온, category=캠핑, …)</span><span class="tr">▸ search_products(category=캠핑, limit=20, …)</span>작년에 <b>LED 랜턴</b>을 구매하신 이력이 있어 보온 중심으로 골랐어요. 세트 합계가 잔여 포인트 안에 들어옵니다.</div>
+        <div class="gen"><div class="lbl">GENERATED UI · 추천</div><div class="ttl">겨울 캠핑 보온 3종</div>
+          <div class="pcards">
+            <div class="pc"><div class="e">🛏️</div><div class="nm">동계 머미형 침낭 (-15℃)</div><div class="pr">89,000P</div><div class="rs">✓ 랜턴 구매 이력 → 동계 보온 우선</div><span class="btn">담기</span></div>
+            <div class="pc"><div class="e">🔥</div><div class="nm">캠핑 난로</div><div class="pr">…P</div><div class="rs">✓ 모델이 조회 결과로 작성</div><span class="btn">담기</span></div>
+            <div class="pc"><div class="e">🧣</div><div class="nm">발열 블랭킷</div><div class="pr">…P</div><div class="rs">✓ 세트 합계 검산</div><span class="btn">담기</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px"><span>세트 합계 <b>…P</b></span><span class="pbtn">세트 전체 담기</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 05 ONE TURN</span></div>
+  <div class="notes">2단계가 하이라이트: 첫 검색이 0건이었는데 모델이 스스로 조건을 풀어 재검색했습니다. 스크립트였다면 불가능한 행동. 카드의 "추천 근거"도 DB의 summary가 아니라 모델이 구매 이력을 보고 직접 쓴 문장입니다. (오른쪽 목업의 상품명·가격은 매 실행마다 달라지므로 예시 표기)</div>
+</section>
+
+<!-- ========================================================= 7. A2UI 프로토콜 -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">06 · A2UI PROTOCOL</div><div class="s-title">A2UI v0.9 — 모델이 "말하는" UI 명세의 실제 모습<span class="sub">마크다운 텍스트 사이에 ```json 펜스로 섞여 들어오는 메시지 3종 + 역방향 액션 1종</span></div></div><div class="s-meta"><div class="no">06</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div>
+        <div class="badge b-violet" style="margin-bottom:6px">에이전트 → 앱 ① 서피스 선언</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"createSurface"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-1"</span>,
+  <span class="k">"catalogId"</span>:<span class="s">"com.example.welfare-shop"</span>,<span class="k">"sendDataModel"</span>:<span class="n">true</span>}}</pre>
+        <div class="badge b-violet" style="margin:10px 0 6px">에이전트 → 앱 ② 컴포넌트 트리 (flat 리스트 + id 참조, 루트는 반드시 "root")</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"updateComponents"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-1"</span>,<span class="k">"components"</span>:[
+  {<span class="k">"id"</span>:<span class="s">"root"</span>,<span class="k">"component"</span>:<span class="s">"ProductGrid"</span>,<span class="k">"title"</span>:<span class="s">"겨울 캠핑 보온 3종"</span>,
+   <span class="k">"products"</span>:[{<span class="k">"productId"</span>:<span class="s">"sleeping_bag_a"</span>,<span class="k">"emoji"</span>:<span class="s">"🛏️"</span>,
+     <span class="k">"name"</span>:<span class="s">"동계 머미형 침낭 (-15℃)"</span>,<span class="k">"price"</span>:<span class="n">89000</span>,
+     <span class="k">"reason"</span>:<span class="s">"랜턴 구매 이력 → 동계 보온 우선"</span>}, <span class="c">…</span>],
+   <span class="k">"showTotal"</span>:<span class="n">true</span>,<span class="k">"addAllLabel"</span>:<span class="s">"세트 전체 담기"</span>}]}}</pre>
+        <div class="badge b-violet" style="margin:10px 0 6px">에이전트 → 앱 ③ 데이터 모델 부분 갱신 (화면 재구성 없이 값만)</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"updateDataModel"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-3"</span>,<span class="k">"path"</span>:<span class="s">"/tuna"</span>,
+  <span class="k">"value"</span>:{<span class="k">"brand"</span>:<span class="s">"any"</span>,<span class="k">"type"</span>:<span class="s">"살코기"</span>}}}</pre>
+      </div>
+      <div>
+        <div class="badge b-teal" style="margin-bottom:6px">앱 → 에이전트 · 사용자가 "담기"를 누르면 (UiInteractionPart, 실측 원문 요지)</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"action"</span>:{<span class="k">"name"</span>:<span class="s">"addToCart"</span>,<span class="k">"sourceComponentId"</span>:<span class="s">"root"</span>,
+  <span class="k">"timestamp"</span>:<span class="s">"2026-10-14T13:50:17.870"</span>,
+  <span class="k">"context"</span>:{<span class="k">"productIds"</span>:[<span class="s">"sleeping_bag_a"</span>]}}}</pre>
+        <p style="font-size:13px;color:#33415C;line-height:1.55;margin:8px 0 14px">BE는 이 JSON을 <code>[UI_ACTION] {…}</code> 접두어를 붙인 <b>user 메시지</b>로 모델에게 전달합니다. 모델은 action.name과 context를 읽고 <code>add_to_cart</code>를 호출할지 판단합니다 — FE·BE 어디에도 "addToCart면 장바구니" 같은 분기 코드가 없습니다.</p>
+        <div class="card">
+          <h3>이 규격의 정체</h3>
+          <ul>
+            <li><b>모델 기능이 아니라 프롬프트 규격</b>입니다. Claude·Gemini 어느 쪽도 A2UI를 "알지" 못하며, 시스템 프롬프트가 형식·스키마·규칙을 가르칩니다.</li>
+            <li>그래서 <b>LLM을 바꿔도 앱은 그대로</b> — 같은 형식의 스트림만 내면 어떤 에이전트든 연결됩니다.</li>
+            <li>텍스트와 JSON이 <b>한 스트림</b>에 섞이는 것이 의도된 설계 — "설명하다가 중간에 UI가 나타나는" UX를 위해 tool use 대신 텍스트 펜스를 씁니다.</li>
+            <li>스키마 준수는 지시일 뿐, <b>최종 방어선은 클라이언트 검증</b>. 위반하면 렌더링이 거부됩니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 06 A2UI PROTOCOL</span></div>
+  <div class="notes">왼쪽이 모델의 출력, 오른쪽 위가 사용자의 클릭이 모델에게 돌아가는 모양. 자주 받는 질문 "Claude가 A2UI를 지원하나요?" → 아니요, 프롬프트 엔지니어링입니다. 그래서 LLM을 바꿔도 FE는 그대로입니다.</div>
+</section>
+
+<!-- ========================================================= 8. SDK 파이프라인 내부 -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">07 · SDK INTERNALS</div><div class="s-title">Flutter GenUI SDK 내부 — 스트림이 위젯이 되기까지<span class="sub">genui 0.10.2 소스 기준 · 조각난 토큰 스트림을 어떻게 안전하게 UI로 바꾸는가</span></div></div><div class="s-meta"><div class="no">07</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box acc"><div class="t">A2uiTransportAdapter</div><div class="d"><code>addChunk(text)</code> 입력<br>→ <code>incomingText</code> / <code>incomingMessages</code> 두 스트림으로 분리</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">A2uiParserTransformer</div><div class="d">버퍼에 누적 → <code>```json</code> 펜스 또는 균형 잡힌 <code>{…}</code> 탐지<br>미완성이면 <b>다음 청크까지 대기</b></div></div>
+      <div class="arr">→</div>
+      <div class="box acc"><div class="t">SurfaceController</div><div class="d"><code>handleMessage()</code> — 카탈로그 스키마 검증, 서피스 레지스트리·데이터 모델 관리<br><code>surfaceUpdates</code> · <code>onSubmit</code> 스트림</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">Surface 위젯</div><div class="d"><code>Surface(surfaceContext: controller.contextFor(id))</code><br>컴포넌트 트리를 카탈로그의 <code>widgetBuilder</code>로 빌드</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">chat_session.dart — 배선 전체가 이 몇 줄</div>
+<pre><span class="c">// 1) 엔진·파서·에이전트 생성</span>
+surfaceController = <span class="k">SurfaceController</span>(catalogs: [shopCatalog]);
+_transport = <span class="k">A2uiTransportAdapter</span>();
+_agent = createAgent(emitChunk: _transport.<span class="h">addChunk</span>); <span class="c">// SSE → 파서</span>
+
+<span class="c">// 2) 파서 출력 → 엔진 / 말풍선</span>
+_transport.incomingMessages.listen(surfaceController.<span class="h">handleMessage</span>);
+_transport.incomingText.listen(_appendAgentText);
+
+<span class="c">// 3) 엔진 출력 → 타임라인 / 에이전트</span>
+surfaceController.surfaceUpdates.listen(_onSurfaceUpdate); <span class="c">// 서피스 → 타임라인</span>
+surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// 클릭 → 에이전트</span></pre>
+      </div>
+      <div class="card">
+        <h3>왜 이 구조가 중요한가</h3>
+        <ul>
+          <li><b>스트리밍 안전성</b> — LLM은 JSON을 토큰 단위로 끊어 보냅니다. 파서는 펜스가 닫히거나 중괄호가 균형을 이룰 때까지 버퍼링하고, 파싱 실패 시 그 조각을 텍스트로 돌려보내 <b>화면이 깨지지 않게</b> 합니다.</li>
+          <li><b>텍스트와 UI의 분리</b> — 같은 스트림에서 텍스트는 말풍선으로, JSON은 서피스로 갈라집니다. 말풍선 → 서피스 → 새 말풍선 순서가 자연스럽게 유지됩니다.</li>
+          <li><b>검증은 클라이언트에서</b> — 모델이 스키마를 어기면 <code>handleMessage</code> 단계에서 거부. 앱이 신뢰 경계를 쥡니다.</li>
+          <li><b>에이전트 교체 지점이 하나</b> — <code>emitChunk</code> 콜백 하나만 맞추면 어떤 LLM·서버든 연결됩니다. UI 코드가 에이전트 구현과 완전히 분리되는 이유.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 07 SDK INTERNALS</span></div>
+  <div class="notes">개발자분들을 위한 슬라이드. SDK가 하는 일은 결국 "파싱-검증-렌더" 셋이고, 앱 쪽 배선은 왼쪽 코드가 전부입니다. 강조: 파서가 미완성 JSON을 기다려 준다는 점, 검증이 클라이언트에 있다는 점.</div>
+</section>
+
+<!-- ========================================================= 9. 카탈로그 -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">08 · CATALOG</div><div class="s-title">카탈로그 — 개발자가 만드는 유일한 것, "모델이 쓸 수 있는 부품"<span class="sub">CatalogItem = 이름 + JSON Schema + Flutter 위젯 빌더. 스키마는 검증 규칙이자 모델에게 주는 명세</span></div></div><div class="s-meta"><div class="no">08</div></div></div>
+  <div class="s-body">
+    <div class="grid" style="grid-template-columns:1.1fr 1fr;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">shop_catalog.dart — ProductGrid 정의 (요지)</div>
+<pre style="font-size:12px"><span class="k">final</span> productGridItem = <span class="k">CatalogItem</span>(
+  name: <span class="s">'ProductGrid'</span>,
+  dataSchema: S.object(properties: {          <span class="c">// ← 검증 + 프롬프트 명세</span>
+    <span class="s">'title'</span>: S.string(),
+    <span class="s">'products'</span>: S.list(items: S.object(properties: {
+      <span class="s">'productId'</span>: S.string(), <span class="s">'name'</span>: S.string(),
+      <span class="s">'price'</span>: S.integer(), <span class="s">'reason'</span>: S.string(description: <span class="s">'추천 근거'</span>),
+    }, required: [<span class="s">'productId'</span>,<span class="s">'name'</span>,<span class="s">'price'</span>])),
+    <span class="s">'showTotal'</span>: S.boolean(), <span class="s">'addAllLabel'</span>: S.string(),
+  }, required: [<span class="s">'products'</span>]),
+  widgetBuilder: (itemContext) {              <span class="c">// ← 일반 Flutter 위젯</span>
+    <span class="k">final</span> data = itemContext.data;
+    <span class="k">return</span> _GenUiFrame(child: Wrap(children: [
+      <span class="k">for</span> (<span class="k">final</span> p <span class="k">in</span> data[<span class="s">'products'</span>]) _ProductCard(data: p,
+        onAdd: () =&gt; itemContext.<span class="h">dispatchEvent</span>(<span class="k">UserActionEvent</span>(
+          name: <span class="s">'addToCart'</span>, context: {<span class="s">'productIds'</span>: [p[<span class="s">'productId'</span>]]})))
+    ]));
+  },
+);
+<span class="c">// 기본 카탈로그에 커스텀 4종을 얹어 하나의 카탈로그로</span>
+<span class="k">final</span> shopCatalog = BasicCatalogItems.asCatalog()
+  .copyWith(catalogId: <span class="s">'com.example.welfare-shop'</span>,
+            newItems: [productGridItem, comparisonTableItem,
+                       cartSummaryItem, orderConfirmationItem]);</pre>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card"><h3>이 데모의 카탈로그 구성</h3>
+          <table class="t">
+            <tr><th>구분</th><th>컴포넌트</th><th>내장 액션</th></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">커스텀</span></td><td><b>ProductGrid</b> 카드 그리드</td><td class="mono" style="font-size:12px">addToCart</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">커스텀</span></td><td><b>ComparisonTable</b> 스펙 비교표</td><td class="mono" style="font-size:12px">addToCart</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">커스텀</span></td><td><b>CartSummary</b> 장바구니 + HITL 안내</td><td class="mono" style="font-size:12px">removeFromCart · checkout</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">커스텀</span></td><td><b>OrderConfirmation</b> 주문 접수</td><td class="mono" style="font-size:12px">—</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-teal">표준</span></td><td>Column · Text · Button · ChoicePicker 등 (BasicCatalogItems)</td><td class="mono" style="font-size:12px">모델이 즉석 정의</td></tr>
+          </table></div>
+        <div class="card tint"><h3>설계 포인트</h3>
+          <ul>
+            <li><b>안전장치</b>: 카탈로그에 없는 컴포넌트는 사용 불가, 스키마 위반 시 렌더 거부</li>
+            <li><b>디자인 시스템 통제</b>: 모양·색·여백은 Flutter 코드, 모델은 "내용"만 채움</li>
+            <li><b>이벤트 설계</b>: 커스텀 부품의 액션명은 고정(addToCart), 표준 Button은 모델이 즉석 정의</li>
+          </ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 08 CATALOG</span></div>
+  <div class="notes">"그럼 개발자는 뭘 하나요?" 에 대한 답. 부품 4개를 만들었고, 각 부품은 스키마+위젯빌더. 스키마가 모델에게 가는 설명서이기도 하다는 점이 GenUI만의 묘미. 디자인은 우리가, 내용은 모델이.</div>
+</section>
+
+<!-- ========================================================= 9A. 프롬프트 — 현재 방식 -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">09 · WHAT THE LLM SEES</div><div class="s-title">LLM에게 매 요청 보내는 것 — 세 덩어리<span class="sub">질의만 보내는 게 아니다. 시스템 프롬프트(UI 부품 명세 포함) + 도구 정의 + 대화 히스토리 세 덩어리가 함께 간다</span></div></div><div class="s-meta"><div class="no">09</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box acc"><div class="t">① 시스템 프롬프트 <span class="badge b-violet">고정 · 캐시</span></div><div class="d" style="text-align:left">정적 문자열 1개 (약 5,900자)<br>· 역할·규칙 · A2UI 출력 형식<br>· <b>UI 컴포넌트 명세 (요약)</b><br>· UI 판단 지침 · 구매 3단계 · few-shot 1개</div></div>
+      <div class="arr">+</div>
+      <div class="box"><div class="t">② 도구 정의 8종 <span class="badge b-amber">strict JSON Schema</span></div><div class="d" style="text-align:left">get_member · get_purchase_history · search_products · get_product_specs · add_to_cart · remove_from_cart · submit_order · confirm_payment<br>→ 모델이 어떤 인자로 DB를 조회할 수 있는지</div></div>
+      <div class="arr">+</div>
+      <div class="box"><div class="t">③ 히스토리 + 이번 입력</div><div class="d" style="text-align:left">세션의 이전 대화 전부 (모델 응답·도구 결과 포함)<br>+ 사용자 텍스트, 또는 버튼 클릭이면<br><code>[UI_ACTION] {"action":{"name":"addToCart",…}}</code><br>※ 화면 상태·포인트 값은 보내지 않음 — 도구로 조회</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1.25fr 1fr;margin-top:14px;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">시스템 프롬프트 — UI 컴포넌트 명세 부분 (카탈로그 스키마의 요약본)</div>
+<pre style="font-size:12px"><span class="c"># 사용 가능한 컴포넌트 (catalogId: com.example.welfare-shop)</span>
+<span class="h">- ProductGrid</span> — 추천 상품 카드 그리드
+  props: title?, products[{productId*, name*, price*(int), reason?}], showTotal?, addAllLabel?
+  내장 액션: 담기 → addToCart {productIds:[id]}
+<span class="h">- ComparisonTable</span> — props: title?, products[…], rows[{label*, values*[]}], recommendation?
+<span class="h">- CartSummary</span> — props: items[…], total*, balanceAfter*, note?
+<span class="h">- OrderConfirmation</span> — props: orderId*, total*, status*, …
+<span class="c">## 표준 컴포넌트</span>
+- Column: {children:[id,…]}   - Text: {text}
+- Button: {child, variant, action:{event:{name, context:{키:{"path":"/경로"}}}}}
+- ChoicePicker: {label, displayStyle:"chips", options:[…], value:{"path":"/경로"}}</pre>
+      </div>
+      <div class="card"><h3>설계 포인트</h3><ul>
+          <li><b>짧고 캐시 친화적</b> — 도메인 규칙(도구·구매 흐름·판단 지침)과 한 덩어리로 다듬기 쉽다</li>
+          <li><b>충분히 동작</b> — 실측에서 모델이 스키마를 어긴 적 없음</li>
+          <li><b>서버가 쥔다</b> — LLM 호출·API 키·도구 실행은 BE에 머문다</li>
+          <li><b>트레이드오프</b> — 계약이 카탈로그·프롬프트 두 곳에 있고, 표준 부품은 명세에 적은 것만 쓸 수 있다. SDK PromptBuilder로 카탈로그에서 자동 생성하는 것이 대안. 최종 방어는 FE 검증</li>
+        </ul></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 09 WHAT THE LLM SEES</span></div>
+  <div class="notes">"LLM에게 뭘 주나요?"에 대한 답. 질문만 보내는 게 아니라 세 덩어리. 가운데 코드가 핵심 — Flutter 카탈로그에 있는 스키마를 사람이 읽는 문장으로 옮겨 적은 것. 그래서 두 곳을 같이 관리해야 한다는 트레이드오프가 생김. SDK의 PromptBuilder가 대안이라는 점만 언급.</div>
+</section>
+
+<!-- ========================================================= 10. 인터뷰 폼 -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">10 · DYNAMIC FORM</div><div class="s-title">"참치캔 추천해줘" — 표준 부품만으로 모델이 폼을 즉석 설계<span class="sub">카탈로그에 "참치 인터뷰 폼"은 없다. Column · ChoicePicker · Button을 모델이 조합하고, 액션 이름까지 지었다</span></div></div><div class="s-meta"><div class="no">10</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div class="chat">
+        <div class="msg u">참치캔 추천해줘</div>
+        <div class="msg a"><span class="tr">▸ search_products(query=참치캔, category=식품, sort=repurchase, limit=10)</span>참치캔 종류가 많아요. 전부 나열하는 대신 두 가지만 여쭤보고 좁혀드릴게요.</div>
+        <div class="gen"><div class="lbl">GENERATED UI · 폼 (표준 컴포넌트)</div>
+          <div style="font-size:12.5px;font-weight:600;margin-top:6px">어떤 타입을 찾으세요?</div>
+          <div class="chips"><span class="chip on">살코기</span><span class="chip">저염</span><span class="chip">고추참치</span></div>
+          <div style="font-size:12.5px;font-weight:600">선호 브랜드</div>
+          <div class="chips"><span class="chip on">상관없음</span><span class="chip">동원</span><span class="chip">사조</span></div>
+          <span class="pbtn">참치캔 추천받기</span>
+        </div>
+        <div class="msg ua">🖱 참치캔 추천받기</div>
+        <div class="msg a"><span class="tr">▸ search_products(tags=[살코기], …)</span>좋아요 — <b>살코기</b> 조건으로 좁혔어요. → 이어서 <b>ProductGrid</b> 카드로 추천</div>
+      </div>
+      <div>
+        <div class="badge b-violet" style="margin-bottom:6px">모델이 출력한 updateComponents (실측 요지) — 데이터 모델 path 바인딩이 핵심</div>
+<pre style="font-size:12px">{<span class="k">"id"</span>:<span class="s">"root"</span>,<span class="k">"component"</span>:<span class="s">"Column"</span>,<span class="k">"children"</span>:[<span class="s">"typePicker"</span>,<span class="s">"brandPicker"</span>,<span class="s">"btn"</span>]},
+{<span class="k">"id"</span>:<span class="s">"typePicker"</span>,<span class="k">"component"</span>:<span class="s">"ChoicePicker"</span>,<span class="k">"label"</span>:<span class="s">"어떤 타입을 찾으세요?"</span>,
+ <span class="k">"displayStyle"</span>:<span class="s">"chips"</span>,<span class="k">"variant"</span>:<span class="s">"mutuallyExclusive"</span>,
+ <span class="k">"options"</span>:[{<span class="k">"label"</span>:<span class="s">"살코기"</span>,<span class="k">"value"</span>:<span class="s">"살코기"</span>},<span class="c">…</span>],
+ <span class="k">"value"</span>:{<span class="h">"path"</span>:<span class="s">"/tuna/type"</span>}},            <span class="c">← 선택값이 데이터모델에 기록</span>
+{<span class="k">"id"</span>:<span class="s">"btn"</span>,<span class="k">"component"</span>:<span class="s">"Button"</span>,<span class="k">"child"</span>:<span class="s">"btnLabel"</span>,<span class="k">"variant"</span>:<span class="s">"primary"</span>,
+ <span class="k">"action"</span>:{<span class="k">"event"</span>:{<span class="k">"name"</span>:<span class="h">"recommendTuna"</span>,         <span class="c">← 모델이 지은 액션명</span>
+   <span class="k">"context"</span>:{<span class="k">"type"</span>:{<span class="h">"path"</span>:<span class="s">"/tuna/type"</span>},        <span class="c">← 클릭 시점 폼 값 동봉</span>
+              <span class="k">"label"</span>:<span class="s">"참치캔 추천받기"</span>}}}},
+{<span class="k">"id"</span>:<span class="s">"btnLabel"</span>,<span class="k">"component"</span>:<span class="s">"Text"</span>,<span class="k">"text"</span>:<span class="s">"참치캔 추천받기"</span>}
+<span class="c">// 이어서 updateDataModel로 기본값 시딩 → 미선택 제출도 안전</span></pre>
+        <div class="card" style="margin-top:12px"><h3>여기서 일어난 일</h3>
+          <ul>
+            <li><b>UI 형태의 선택</b>: total_matched가 크다고 판단 → 나열 대신 인터뷰 (시스템 프롬프트의 지침은 "강제 아님")</li>
+            <li><b>폼 제출 패턴</b>: ChoicePicker 값 → 데이터모델 <code>/tuna/type</code> → Button context의 path 바인딩이 클릭 시점 값을 실어 보냄</li>
+            <li><b>액션명 <code>recommendTuna</code>는 카탈로그·코드 어디에도 없음</b> — 모델이 정의하고, 다음 턴에 모델이 해석. FE는 label만 타임라인에 표시</li>
+          </ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI 데모 · 10 DYNAMIC FORM</span></div>
+  <div class="notes">가장 "생성형"다운 장면. 참치 폼은 아무도 설계하지 않았습니다. 모델이 표준 부품 셋으로 폼을 짜고, 버튼 액션 이름도 스스로 지었고, 그 액션을 다음 턴에 스스로 해석했습니다. 데모에서 이 장면을 꼭 보여주세요.</div>
+</section>
+
+</div>
+
+<div class="hud"><b id="cur">1</b> / <span id="tot">11</span> &nbsp;·&nbsp; ← → 이동 &nbsp;·&nbsp; N 노트 &nbsp;·&nbsp; F 전체화면 &nbsp;·&nbsp; P 인쇄</div>
+
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=Math.max(0,Math.min(slides.length-1,parseInt(location.hash.slice(1)||'1',10)-1));
+  const cur=document.getElementById('cur');document.getElementById('tot').textContent=slides.length;
+  function show(n){slides.forEach(s=>s.classList.remove('active'));i=(n+slides.length)%slides.length;slides[i].classList.add('active');cur.textContent=i+1;history.replaceState(null,'','#'+(i+1));}
+  show(i);
+  function fit(){document.documentElement.style.setProperty('--scale',Math.min(window.innerWidth/1280,window.innerHeight/720).toFixed(4));}
+  fit();window.addEventListener('resize',fit);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')show(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='n'||e.key==='N')document.body.classList.toggle('show-notes');
+    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+    else if(e.key==='p'||e.key==='P')window.print();
+  });
+  document.addEventListener('click',e=>{if(e.target.closest('.hud,.notes,a'))return;const x=e.clientX/window.innerWidth;show(x>0.5?i+1:i-1);});
+})();
+</script>
+</body>
+</html>

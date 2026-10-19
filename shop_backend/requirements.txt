@@ -1,0 +1,11 @@
+# pip install -r requirements.txt
+fastapi
+uvicorn[standard]
+anthropic[bedrock]
+psycopg[binary,pool]
+python-dotenv
+httpx
+sse-starlette
+
+# dev / tests
+pytest

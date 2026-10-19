@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GenUI — Conversation Builds the Screen · Conversational Shopping Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EDF3; --paper:#FBFCFE; --card:#FFFFFF; --ink:#16233B; --dim:#5A6A85; --line:#DDE3EC;
+  --blue:#1D63D8; --blue-soft:#EDF3FC; --teal:#0E9A85; --teal-soft:#E9F6F3;
+  --violet:#7A5CC9; --violet-soft:#F2EFFA; --green:#2E8F55; --green-soft:#EAF4EE;
+  --amber:#B7791F; --amber-soft:#FBF3E3; --red:#C94D57; --red-soft:#FBEDEE;
+  --accent:var(--violet); --accent-soft:var(--violet-soft);
+  --scale:1;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif;color:var(--ink);overflow:hidden}
+.mono{font-family:'IBM Plex Mono','Consolas',monospace}
+
+/* ---------- deck / slide ----------
+   슬라이드는 1280x720 캔버스로 설계하고, 화면 크기에 맞춰 통째로 확대/축소한다.
+   글자 크기가 화면 크기에 비례해 커진다 (FHD 프로젝터에서 1.5배). */
+.deck{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.slide{
+  display:none;position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center center;
+  background:var(--paper);border:1px solid var(--line);padding:44px 60px 50px;flex-direction:column;
+  box-shadow:0 20px 60px rgba(22,35,59,.10);overflow:hidden;
+}
+.slide.active{display:flex}
+/* 여백이 많은 슬라이드: 본문 폰트 추가 확대 */
+.slide.roomy .card h3{font-size:20px;margin-bottom:12px}
+.slide.roomy .card p,.slide.roomy .card li{font-size:18px;line-height:1.7}
+.slide.roomy .card li+li{margin-top:8px}
+.slide.roomy .card{padding:22px 26px}
+.slide.roomy .flow .box .t{font-size:17px}
+.slide.roomy .flow .box .d{font-size:14.5px}
+.slide.roomy .loopbar{font-size:15px;padding:10px 14px}
+.slide.roomy .lead{font-size:22px}
+/* 내용이 빽빽한 슬라이드: 표·카드 패딩 축소 */
+.slide.dense table.t{font-size:13.5px}
+.slide.dense table.t td,.slide.dense table.t th{padding:7px 10px}
+.slide.dense .card{padding:13px 16px}
+.slide.dense .card p,.slide.dense .card li{font-size:14.5px;line-height:1.5}
+.s-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:20px}
+.s-tag{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.14em;color:var(--accent);font-weight:600;margin-bottom:8px}
+.s-title{font-size:36px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.s-title .sub{display:block;font-size:18px;font-weight:500;color:var(--dim);margin-top:8px;letter-spacing:0;line-height:1.4}
+.s-meta{text-align:right;flex:none}
+.s-meta .no{font-family:'IBM Plex Mono',monospace;font-size:52px;font-weight:600;color:var(--accent);opacity:.15;line-height:1}
+.s-body{flex:1;min-height:0;display:flex;flex-direction:column}
+.s-foot{position:absolute;left:60px;right:60px;bottom:18px;display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#93A0B5;letter-spacing:.08em}
+.s-foot .time{color:var(--accent);font-weight:600}
+
+/* ---------- common blocks ---------- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+.card h3{font-size:17px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p,.card li{font-size:15.5px;line-height:1.55;color:#33415C}
+.card ul{padding-left:18px}
+.card li+li{margin-top:3px}
+.card.tint{background:var(--accent-soft);border-color:transparent}
+.badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;border-radius:3px;padding:2px 7px;letter-spacing:.02em;vertical-align:middle}
+.b-blue{color:var(--blue);background:var(--blue-soft)}.b-teal{color:var(--teal);background:var(--teal-soft)}
+.b-violet{color:var(--violet);background:var(--violet-soft)}.b-green{color:var(--green);background:var(--green-soft)}
+.b-amber{color:var(--amber);background:var(--amber-soft)}.b-red{color:var(--red);background:var(--red-soft)}
+.lead{font-size:20px;line-height:1.6;color:#33415C}
+.lead b{color:var(--ink)}
+pre{font-family:'IBM Plex Mono','Consolas',monospace;font-size:12.5px;line-height:1.5;background:#1B2437;color:#E6ECF5;border-radius:6px;padding:14px 16px;overflow:hidden;white-space:pre-wrap;word-break:break-all}
+pre .k{color:#8FB8FF}pre .s{color:#B6E3A7}pre .n{color:#F6C177}pre .c{color:#8A97AE}pre .h{color:#FFD166;font-weight:600}
+code{font-family:'IBM Plex Mono','Consolas',monospace;font-size:.92em;background:#EFF2F6;padding:1px 5px;border-radius:3px}
+table.t{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);font-size:14.5px}
+table.t th{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;font-weight:600;color:var(--dim);background:#F3F6FA;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+table.t td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;color:#33415C}
+table.t td b{color:var(--ink)}
+.kpi{display:flex;gap:14px}
+.kpi .k{flex:1;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.kpi .k .v{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:600;color:var(--accent)}
+.kpi .k .l{font-size:13px;color:var(--dim);margin-top:2px;line-height:1.4}
+
+/* ---------- flow diagram ---------- */
+.flow{display:flex;align-items:stretch;gap:0;margin:6px 0}
+.flow .box{flex:1;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 12px;text-align:center}
+.flow .box .t{font-size:15px;font-weight:700}
+.flow .box .d{font-size:13px;color:var(--dim);margin-top:4px;line-height:1.45}
+.flow .box.acc{border-color:var(--accent);background:var(--accent-soft)}
+.flow .arr{flex:none;width:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--accent);font-size:22px;line-height:1}
+.flow .arr:has(small){width:86px}
+.flow .arr small{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--dim);display:block;text-align:center;line-height:1.3;margin-top:4px;white-space:normal}
+.loopbar{margin-top:8px;border:1px dashed var(--accent);border-radius:6px;padding:8px 14px;font-size:14px;color:var(--accent);text-align:center;font-weight:600}
+
+/* ---------- step list ---------- */
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:9px}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.step::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step .st{font-size:15.5px;font-weight:700}
+.step .sd{font-size:14px;color:#33415C;line-height:1.5;margin-top:2px}
+
+/* ---------- chat mock ---------- */
+.chat{background:#F2F4F8;border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:9px;font-size:14px}
+.msg{max-width:88%;padding:9px 12px;border-radius:4px;line-height:1.5}
+.msg.u{align-self:flex-end;background:var(--violet);color:#fff}
+.msg.ua{align-self:flex-end;background:#E3E7EE;color:#4A566B;font-size:13.5px}
+.msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.msg .tr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);display:block}
+.gen{align-self:flex-start;width:92%;background:#fff;border:1px solid var(--line);border-left:4px solid var(--violet);padding:10px 12px}
+.gen .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--violet);font-weight:700}
+.gen .ttl{font-weight:700;font-size:14px;margin:4px 0 8px}
+.pcards{display:flex;gap:8px}
+.pc{flex:1;max-width:210px;border:1px solid var(--line);border-radius:6px;padding:8px;font-size:13px}
+.pc .e{font-size:22px}.pc .nm{font-weight:600;margin-top:2px}.pc .pr{color:var(--violet);font-weight:700}.pc .rs{color:var(--dim);font-size:12px;margin-top:3px}
+.pc .btn{display:inline-block;margin-top:6px;border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+.chip{border:1px solid var(--line);border-radius:14px;padding:3px 10px;font-size:13px}
+.chip.on{background:var(--violet-soft);border-color:var(--violet);color:var(--violet);font-weight:600}
+.pbtn{display:inline-block;background:var(--violet);color:#fff;border-radius:4px;padding:5px 12px;font-size:13px;font-weight:600}
+
+/* ---------- title slide ---------- */
+.slide.title{justify-content:center;background:linear-gradient(135deg,#FBFCFE 0%,#F2EFFA 100%)}
+.slide.title .s-tag{font-size:16px}
+.slide.title h1{font-size:60px;font-weight:700;letter-spacing:-.02em;line-height:1.12;margin:12px 0 22px}
+.slide.title h1 em{font-style:normal;color:var(--violet)}
+.slide.title .lead{font-size:22px;max-width:980px}
+.slide.title .meta{margin-top:44px;display:flex;gap:28px;font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--dim)}
+
+/* ---------- notes & hud ---------- */
+.notes{display:none;position:absolute;left:0;right:0;bottom:0;background:#16233B;color:#E6ECF5;padding:14px 60px 18px;font-size:14.5px;line-height:1.6;border-top:3px solid var(--violet);max-height:38%;overflow:auto}
+.notes b{color:#FFD166}
+body.show-notes .notes{display:block}
+.hud{position:fixed;right:18px;top:12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:4px;padding:5px 10px;z-index:9}
+.hud b{color:var(--violet)}
+@media print{
+  body{overflow:visible;background:#fff}
+  .deck{position:static;display:block;width:auto;height:auto}
+  .slide{display:flex !important;position:relative;left:auto;top:auto;transform:none;width:1280px;height:720px;page-break-after:always;margin:0 auto;box-shadow:none}
+  .hud,.notes{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ========================================================= 1. Title -->
+<section class="slide title active">
+  <div class="s-tag">GENUI · GENERATIVE UI · FLUTTER × CLAUDE</div>
+  <h1>Conversation builds the <em>screen</em><br>— a conversational shopping demo with GenUI</h1>
+  <p class="lead">The LLM looks at the user's question and <b>decides for itself which UI to draw</b>; the Flutter app <b>renders that spec as native widgets in real time</b>.
+  No screen is coded in advance — a different screen is assembled every time, driven by what the database query returned.</p>
+  <div class="meta">
+    <span>flutter/genui 0.10.2 · A2UI v0.9</span><span>Claude Opus 5.5</span><span>PostgreSQL shop_db · 317 products</span><span>2026-10</span>
+  </div>
+  <div class="notes">Today we show "generative UI" as a working demo. Ten minutes of talk, five minutes of live demo. One keyword to remember: <b>"the UI is not pre-built — the model assembles it during the conversation."</b></div>
+</section>
+
+<!-- ========================================================= 2. Why -->
+<section class="slide roomy">
+  <div class="s-head"><div><div class="s-tag">01 · WHY</div><div class="s-title">The chatbot ceiling — the answer is right, but there is no screen<span class="sub">An agent that only returns text vs. an agent that builds the fitting UI "together with" the answer</span></div></div><div class="s-meta"><div class="no">01</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div class="card">
+        <h3><span class="badge b-red">AS-IS</span> Text chatbot</h3>
+        <ul>
+          <li>Recommends 3 products → a long paragraph; the user compares prices in their head</li>
+          <li>To "add to cart" you type again or move to another screen</li>
+          <li>Narrowing conditions takes several rounds of Q&amp;A</li>
+          <li>Developers must <b>pre-design every response screen</b> → screens grow with the number of scenarios</li>
+        </ul>
+      </div>
+      <div class="card tint">
+        <h3><span class="badge b-violet">TO-BE</span> Generative UI (GenUI) agent</h3>
+        <ul>
+          <li>Recommendation → <b>card grid</b>; comparison → <b>table</b>; too many candidates → <b>a form</b>; a simple lookup → <b>text only</b></li>
+          <li>A button click on a card <b>becomes the next conversation turn</b> (UI events are first-class citizens of the dialogue)</li>
+          <li>Developers define only the "available parts" (the catalog); <b>the model does the assembly</b></li>
+          <li>The app controls the design system and the safety envelope — the model may only use permitted parts</li>
+        </ul>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:16px">The key question: <b>"If every question needs a different screen, who should build that screen?"</b> — GenUI's answer: "the model, using only the parts the app allows."</p>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 01 WHY</span></div>
+  <div class="notes">Left is the chatbot we all know. Right is what we show today. Two points: ① the model chooses the response shape ② a button click becomes the next turn. From a development standpoint the headline is "instead of N screens we built 4 parts."</div>
+</section>
+
+<!-- ========================================================= 3. Concept -->
+<section class="slide roomy">
+  <div class="s-head"><div><div class="s-tag">02 · CONCEPT</div><div class="s-title">GenUI on one slide — "stream a UI spec, get actions back"<span class="sub">The Flutter team's generative-UI SDK. The model speaks JSON; the app translates it into widgets</span></div></div><div class="s-meta"><div class="no">02</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box"><div class="t">👤 User</div><div class="d">"Recommend winter camping gear"<br>or clicks <b>Add</b> on a card</div></div>
+      <div class="arr">→</div>
+      <div class="box acc"><div class="t">🤖 Agent (LLM)</div><div class="d">Queries the DB via tools →<br>Markdown text + <b>A2UI JSON</b><br>mixed into one stream</div></div>
+      <div class="arr">→<small>stream</small></div>
+      <div class="box"><div class="t">📦 genui SDK</div><div class="d">A2uiTransportAdapter parses<br>SurfaceController validates &amp; holds state<br>Surface widget builds</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">📱 Flutter app</div><div class="d">Renders <b>native widgets</b><br>cards · tables · forms · buttons</div></div>
+    </div>
+    <div class="loopbar">↩ Button click · selection → UserActionEvent → UiInteractionPart JSON → back to the agent (feedback loop)</div>
+    <div class="grid g3" style="margin-top:18px">
+      <div class="card"><h3>① A2UI protocol</h3><p>The <b>contract</b> between agent and app. Three forward messages — <code>createSurface</code> → <code>updateComponents</code> → <code>updateDataModel</code> — and one reverse message, <code>action</code>. It is not a model feature but a <b>pure prompt specification</b>, so any LLM can use it.</p></div>
+      <div class="card"><h3>② Catalog</h3><p>The <b>parts dictionary</b> the app grants the model. Built-ins (Text, Column, Button, ChoicePicker…) plus domain-specific custom parts (ProductGrid etc.). Each part's JSON Schema is <b>both the validation rule and the prompt</b>.</p></div>
+      <div class="card"><h3>③ Surface</h3><p>One chunk of UI the model created. It can be placed anywhere in the chat timeline as a <code>Surface</code> widget, and each surface owns a <b>data model</b> for form-value binding and partial updates.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 02 CONCEPT</span></div>
+  <div class="notes">This picture is the whole story. Left to right: the model "speaks" JSON, the SDK turns it into widgets. Bottom arrow: what happens in the widgets goes back to the model as JSON. Hold on to the three terms — A2UI, catalog, surface — and every later slide is just detail on those three.</div>
+</section>
+
+<!-- ========================================================= 4. Architecture -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">03 · ARCHITECTURE</div><div class="s-title">Demo setup — verifying "dynamism" with a real LLM and a real DB<span class="sub">Does the model query the DB itself and decide the screen from what it finds?</span></div></div><div class="s-meta"><div class="no">03</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box"><div class="t">Flutter Web (Chrome)</div><div class="d"><span class="badge b-blue">genui 0.10.2</span><br>4 custom catalog items + standard parts<br>SSE in → parser → native widgets</div></div>
+      <div class="arr">⇄<small>POST /api/chat<br>SSE</small></div>
+      <div class="box acc"><div class="t">FastAPI agent server</div><div class="d"><span class="badge b-violet">Claude Opus 5.5</span><br>adaptive thinking · tool loop (max 8 rounds)<br>system prompt = A2UI contract + catalog schema</div></div>
+      <div class="arr">⇄<small>tools</small></div>
+      <div class="box"><div class="t">PostgreSQL shop_db</div><div class="d"><span class="badge b-teal">317 products</span><br>members · products(specs JSONB)<br>purchase_history · orders · point_ledger</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3>8 LLM tools <span class="badge b-amber">strict JSON Schema</span></h3>
+        <table class="t"><tr><th>Tool</th><th>Role</th></tr>
+          <tr><td class="mono" style="font-size:12.5px">get_member<br>get_purchase_history</td><td>Remaining / expiring points, purchase history → grounds for recommendations</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">search_products<br>get_product_specs</td><td>Keyword · category · tag · price search; specs JSONB → comparison-table material</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">add_to_cart<br>remove_from_cart</td><td>Session cart (no DB writes)</td></tr>
+          <tr><td class="mono" style="font-size:12.5px">submit_order<br>confirm_payment</td><td>Provisional order → payment confirmation (the only DB write)</td></tr>
+        </table></div>
+      <div class="card"><h3>Verification design principles</h3>
+        <ul>
+          <li><b>Screen code is frozen</b> — rendering pipeline and catalog are identical across scenarios</li>
+          <li>BE → FE stream is a <b>single contract</b>: Markdown + <code>```json</code> A2UI blocks + <code>▸ tool trace</code> lines</li>
+          <li>Tool traces are generated from <b>real tool_use events</b> — never invented by the model</li>
+          <li>UI actions (add, checkout) also go through <b>the model's judgment</b> — no hard-coded routing</li>
+          <li>Every turn is logged as JSONL evidence (tool args · tokens · latency)</li>
+        </ul></div>
+    </div>
+    <p style="margin-top:14px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14.5px;line-height:1.55;color:#33415C">
+      <b>Dynamism</b> = not pre-building screens, but having the model <b>assemble the UI on the spot</b> from the question and the DB results.
+      The test: "does the same Flutter code produce a different screen for every question?" <span style="color:var(--dim);font-size:13px">Product data: 226 Korean food items from Open Food Facts + 91 demo seed items</span>
+    </p>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 03 ARCHITECTURE</span></div>
+  <div class="notes">Three boxes. Flutter app on the left, agent server in the middle, 317 real products in the DB on the right. Emphasize: screen code is identical across scenarios, and tool-call traces come from real events.</div>
+</section>
+
+<!-- ========================================================= 5. Scenario -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">04 · SCENARIO</div><div class="s-title">Same chat window, a different screen per question — 4 demo prompts<span class="sub">UI shapes the model actually chose in today's measured session (9 turns)</span></div></div><div class="s-meta"><div class="no">04</div></div></div>
+  <div class="s-body">
+    <table class="t" style="font-size:14px">
+      <tr><th style="width:30%">User input</th><th style="width:20%">Tools the model called (measured)</th><th style="width:22%">UI the model chose</th><th>Why this shape</th></tr>
+      <tr><td><b>"Recommend winter camping gear with my remaining points"</b></td><td class="mono" style="font-size:12px">get_member → get_purchase_history(camping) → search_products ×2</td><td><span class="badge b-violet">ProductGrid</span> 3 cards + set total + add-all</td><td>Several candidates + a budget context → card grid. Purchase history (LED lantern) written onto the cards as the reason</td></tr>
+      <tr><td><b>"Compare the two sleeping bags"</b></td><td class="mono" style="font-size:12px">get_product_specs(sleeping_bag_a, b)</td><td><span class="badge b-blue">ComparisonTable</span> spec rows + per-column add</td><td>Precise comparison of 2–3 items → table. Remembers the previous turn and fetches only specs, no re-search</td></tr>
+      <tr><td><b>"Recommend canned tuna"</b></td><td class="mono" style="font-size:12px">search_products(tuna, sort=repurchase)</td><td><span class="badge b-teal">Interview form</span> Column + ChoicePicker×2 + Button</td><td>Too many candidates → instead of listing, it <b>assembles a question form from standard parts only</b></td></tr>
+      <tr><td><b>"How many points do I have left?"</b></td><td class="mono" style="font-size:12px">(no tool call — reuses the earlier get_member result)</td><td><span class="badge b-amber">Text only</span> no UI</td><td>Simple lookup → decides <b>not</b> to build a screen. "UI only when needed"</td></tr>
+      <tr><td>Click <b>Add</b> on a card → click <b>Proceed to checkout</b></td><td class="mono" style="font-size:12px">add_to_cart → submit_order</td><td><span class="badge b-green">CartSummary</span> → <span class="badge b-green">OrderConfirmation</span> + confirm-payment Button</td><td>The UI action becomes the next turn's input; the model chains tools and screens</td></tr>
+    </table>
+    <div class="kpi" style="margin-top:14px">
+      <div class="k"><div class="v">9 turns</div><div class="l">Today's measured session (incl. 3 off-script questions)</div></div>
+      <div class="k"><div class="v">4–21 s</div><div class="l">Response per turn (text streams immediately)</div></div>
+      <div class="k"><div class="v">6,327</div><div class="l">Prompt tokens read from cache every turn (system prompt + tool definitions)</div></div>
+      <div class="k"><div class="v">0 lines</div><div class="l">Flutter code changed to add a scenario</div></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 04 SCENARIO</span></div>
+  <div class="notes">These are the four sentences you will see in the demo. Column 2 matters — tools the model actually called. Row 4 especially: deciding "not to build a UI" shows GenUI's maturity. Today's session also handled unprepared questions like "no, recommend again without the light one" and "compare the first one with the Sajo tuna".</div>
+</section>
+
+<!-- ========================================================= 6. One turn -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">05 · ONE TURN</div><div class="s-title">Anatomy of one turn — "Recommend winter camping gear with my remaining points"<span class="sub">Measured log 2026-10-14 13:47 (Opus 4.8) · 20.9 s · 849 output tokens (196 thinking) · 6,327 cache-read tokens</span></div></div><div class="s-meta"><div class="no">05</div></div></div>
+  <div class="s-body">
+    <div class="grid" style="grid-template-columns:1.15fr 1fr;flex:1">
+      <div class="steps">
+        <div class="step"><div><div class="st">FE → BE: send a text message</div><div class="sd"><code>{"type":"text","text":"Recommend winter camping gear with my remaining points"}</code> + session_id. The response is an SSE stream.</div></div></div>
+        <div class="step"><div><div class="st">The model calls 4 tools (its own decision)</div><div class="sd"><code>get_member(m-001)</code> → points · expiry D-day · <code>get_purchase_history(camping)</code> → LED lantern history · <code>search_products(query="winter camping warmth")</code> → <b>0 results</b> · the model loosens the filter by itself: <code>search_products(category=camping, limit=20)</code> → candidates found</div></div></div>
+        <div class="step"><div><div class="st">Text streaming begins</div><div class="sd">"You bought an LED lantern last year, so I focused on warmth…" — appears in the bubble <b>as if typed</b>. A <code>▸ get_member(member_id=m-001)</code> trace line is interleaved per tool call.</div></div></div>
+        <div class="step"><div><div class="st">Two A2UI JSON blocks stream in</div><div class="sd"><code>createSurface(shop-1)</code> → <code>updateComponents(root=ProductGrid, products=[3], showTotal, addAllLabel)</code>. Even in 64-character fragments, the parser reassembles them.</div></div></div>
+        <div class="step"><div><div class="st">SDK validates → Surface renders</div><div class="sd">SurfaceController validates against the catalog schema and registers the surface → a <code>Surface</code> widget is added to the timeline → <b>three ProductGrid cards</b> appear as native widgets.</div></div></div>
+      </div>
+      <div class="chat">
+        <div class="msg u">Recommend winter camping gear with my remaining points</div>
+        <div class="msg a"><span class="tr">▸ get_member(member_id=m-001)</span><span class="tr">▸ get_purchase_history(member_id=m-001, category=camping)</span><span class="tr">▸ search_products(query=winter camping warmth, category=camping, …)</span><span class="tr">▸ search_products(category=camping, limit=20, …)</span>You bought an <b>LED lantern</b> last year, so I focused on warmth. The set total fits within your remaining points.</div>
+        <div class="gen"><div class="lbl">GENERATED UI · recommendation</div><div class="ttl">Winter camping warmth set (3)</div>
+          <div class="pcards">
+            <div class="pc"><div class="e">🛏️</div><div class="nm">Winter mummy sleeping bag (-15℃)</div><div class="pr">89,000P</div><div class="rs">✓ Lantern purchase → warmth first</div><span class="btn">Add</span></div>
+            <div class="pc"><div class="e">🔥</div><div class="nm">Camping heater</div><div class="pr">…P</div><div class="rs">✓ Written by the model from query results</div><span class="btn">Add</span></div>
+            <div class="pc"><div class="e">🧣</div><div class="nm">Heated blanket</div><div class="pr">…P</div><div class="rs">✓ Set total double-checked</div><span class="btn">Add</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px"><span>Set total <b>…P</b></span><span class="pbtn">Add the whole set</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 05 ONE TURN</span></div>
+  <div class="notes">Step 2 is the highlight: the first search returned nothing and the model loosened the filter on its own and searched again. A script could never do that. The "reason" on each card is not the DB summary either — the model wrote it after reading the purchase history. (Product names and prices in the mock-up vary per run, hence the placeholders.)</div>
+</section>
+
+<!-- ========================================================= 7. A2UI protocol -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">06 · A2UI PROTOCOL</div><div class="s-title">A2UI v0.9 — what the UI spec the model "speaks" actually looks like<span class="sub">Three message types arriving inside ```json fences between Markdown text, plus one reverse action</span></div></div><div class="s-meta"><div class="no">06</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div>
+        <div class="badge b-violet" style="margin-bottom:6px">Agent → app ① declare a surface</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"createSurface"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-1"</span>,
+  <span class="k">"catalogId"</span>:<span class="s">"com.example.welfare-shop"</span>,<span class="k">"sendDataModel"</span>:<span class="n">true</span>}}</pre>
+        <div class="badge b-violet" style="margin:10px 0 6px">Agent → app ② component tree (flat list + id references; the root must be "root")</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"updateComponents"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-1"</span>,<span class="k">"components"</span>:[
+  {<span class="k">"id"</span>:<span class="s">"root"</span>,<span class="k">"component"</span>:<span class="s">"ProductGrid"</span>,<span class="k">"title"</span>:<span class="s">"Winter camping warmth set (3)"</span>,
+   <span class="k">"products"</span>:[{<span class="k">"productId"</span>:<span class="s">"sleeping_bag_a"</span>,<span class="k">"emoji"</span>:<span class="s">"🛏️"</span>,
+     <span class="k">"name"</span>:<span class="s">"Winter mummy sleeping bag (-15℃)"</span>,<span class="k">"price"</span>:<span class="n">89000</span>,
+     <span class="k">"reason"</span>:<span class="s">"Lantern purchase → warmth first"</span>}, <span class="c">…</span>],
+   <span class="k">"showTotal"</span>:<span class="n">true</span>,<span class="k">"addAllLabel"</span>:<span class="s">"Add the whole set"</span>}]}}</pre>
+        <div class="badge b-violet" style="margin:10px 0 6px">Agent → app ③ partial data-model update (values only, no re-layout)</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"updateDataModel"</span>:{<span class="k">"surfaceId"</span>:<span class="s">"shop-3"</span>,<span class="k">"path"</span>:<span class="s">"/tuna"</span>,
+  <span class="k">"value"</span>:{<span class="k">"brand"</span>:<span class="s">"any"</span>,<span class="k">"type"</span>:<span class="s">"chunk light"</span>}}}</pre>
+      </div>
+      <div>
+        <div class="badge b-teal" style="margin-bottom:6px">App → agent · when the user clicks "Add" (UiInteractionPart, measured, abridged)</div>
+<pre>{<span class="k">"version"</span>:<span class="s">"v0.9"</span>,<span class="h">"action"</span>:{<span class="k">"name"</span>:<span class="s">"addToCart"</span>,<span class="k">"sourceComponentId"</span>:<span class="s">"root"</span>,
+  <span class="k">"timestamp"</span>:<span class="s">"2026-10-14T13:50:17.870"</span>,
+  <span class="k">"context"</span>:{<span class="k">"productIds"</span>:[<span class="s">"sleeping_bag_a"</span>]}}}</pre>
+        <p style="font-size:13px;color:#33415C;line-height:1.55;margin:8px 0 14px">The backend forwards this JSON to the model as a <b>user message</b> prefixed with <code>[UI_ACTION] {…}</code>. The model reads action.name and context and decides whether to call <code>add_to_cart</code> — there is no "if addToCart then cart" branch anywhere in the FE or BE.</p>
+        <div class="card">
+          <h3>What this spec really is</h3>
+          <ul>
+            <li><b>A prompt specification, not a model feature.</b> Neither Claude nor Gemini "knows" A2UI; the system prompt teaches the format, schema and rules.</li>
+            <li>Hence <b>swap the LLM and the app stays the same</b> — any agent that emits the same stream format plugs in.</li>
+            <li>Mixing text and JSON in <b>one stream</b> is deliberate — text fences instead of tool use, so that "UI appears mid-explanation."</li>
+            <li>Schema compliance is only an instruction; <b>the last line of defense is client-side validation</b>. Violations are refused at render time.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 06 A2UI PROTOCOL</span></div>
+  <div class="notes">Left is the model's output; top right is how a user's click goes back to the model. A frequent question — "does Claude support A2UI?" — no, it is prompt engineering. That is why the FE stays the same when you swap the LLM.</div>
+</section>
+
+<!-- ========================================================= 8. SDK internals -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">07 · SDK INTERNALS</div><div class="s-title">Inside the Flutter GenUI SDK — from stream to widget<span class="sub">Based on genui 0.10.2 source · how a fragmented token stream is safely turned into UI</span></div></div><div class="s-meta"><div class="no">07</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box acc"><div class="t">A2uiTransportAdapter</div><div class="d"><code>addChunk(text)</code> in<br>→ split into <code>incomingText</code> / <code>incomingMessages</code> streams</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">A2uiParserTransformer</div><div class="d">Accumulates a buffer → detects <code>```json</code> fences or balanced <code>{…}</code><br>If incomplete, <b>waits for the next chunk</b></div></div>
+      <div class="arr">→</div>
+      <div class="box acc"><div class="t">SurfaceController</div><div class="d"><code>handleMessage()</code> — catalog schema validation, surface registry, data-model management<br><code>surfaceUpdates</code> · <code>onSubmit</code> streams</div></div>
+      <div class="arr">→</div>
+      <div class="box"><div class="t">Surface widget</div><div class="d"><code>Surface(surfaceContext: controller.contextFor(id))</code><br>Builds the component tree with the catalog's <code>widgetBuilder</code></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">chat_session.dart — the entire wiring is these few lines</div>
+<pre><span class="c">// 1) create engine, parser, agent</span>
+surfaceController = <span class="k">SurfaceController</span>(catalogs: [shopCatalog]);
+_transport = <span class="k">A2uiTransportAdapter</span>();
+_agent = createAgent(emitChunk: _transport.<span class="h">addChunk</span>); <span class="c">// SSE → parser</span>
+
+<span class="c">// 2) parser output → engine / chat bubble</span>
+_transport.incomingMessages.listen(surfaceController.<span class="h">handleMessage</span>);
+_transport.incomingText.listen(_appendAgentText);
+
+<span class="c">// 3) engine output → timeline / agent</span>
+surfaceController.surfaceUpdates.listen(_onSurfaceUpdate); <span class="c">// surface → timeline</span>
+surfaceController.onSubmit.listen(_onUiSubmit);            <span class="c">// click → agent</span></pre>
+      </div>
+      <div class="card">
+        <h3>Why this structure matters</h3>
+        <ul>
+          <li><b>Streaming safety</b> — the LLM emits JSON token by token. The parser buffers until a fence closes or braces balance, and on parse failure returns the fragment as text so <b>the screen never breaks</b>.</li>
+          <li><b>Text and UI separated</b> — from one stream, text goes to bubbles and JSON to surfaces. The order bubble → surface → new bubble is preserved naturally.</li>
+          <li><b>Validation on the client</b> — if the model violates the schema, <code>handleMessage</code> rejects it. The app holds the trust boundary.</li>
+          <li><b>One swap point for the agent</b> — match the single <code>emitChunk</code> callback and any LLM or server plugs in. This is why UI code is fully decoupled from the agent implementation.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 07 SDK INTERNALS</span></div>
+  <div class="notes">A slide for the developers. What the SDK does is "parse – validate – render", and the app-side wiring is the code on the left, nothing more. Emphasize: the parser waits for incomplete JSON, and validation lives on the client.</div>
+</section>
+
+<!-- ========================================================= 9. Catalog -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">08 · CATALOG</div><div class="s-title">The catalog — the only thing developers build: "parts the model may use"<span class="sub">CatalogItem = name + JSON Schema + Flutter widget builder. The schema is the validation rule and the spec handed to the model</span></div></div><div class="s-meta"><div class="no">08</div></div></div>
+  <div class="s-body">
+    <div class="grid" style="grid-template-columns:1.1fr 1fr;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">shop_catalog.dart — ProductGrid definition (abridged)</div>
+<pre style="font-size:12px"><span class="k">final</span> productGridItem = <span class="k">CatalogItem</span>(
+  name: <span class="s">'ProductGrid'</span>,
+  dataSchema: S.object(properties: {          <span class="c">// ← validation + prompt spec</span>
+    <span class="s">'title'</span>: S.string(),
+    <span class="s">'products'</span>: S.list(items: S.object(properties: {
+      <span class="s">'productId'</span>: S.string(), <span class="s">'name'</span>: S.string(),
+      <span class="s">'price'</span>: S.integer(), <span class="s">'reason'</span>: S.string(description: <span class="s">'why recommended'</span>),
+    }, required: [<span class="s">'productId'</span>,<span class="s">'name'</span>,<span class="s">'price'</span>])),
+    <span class="s">'showTotal'</span>: S.boolean(), <span class="s">'addAllLabel'</span>: S.string(),
+  }, required: [<span class="s">'products'</span>]),
+  widgetBuilder: (itemContext) {              <span class="c">// ← ordinary Flutter widgets</span>
+    <span class="k">final</span> data = itemContext.data;
+    <span class="k">return</span> _GenUiFrame(child: Wrap(children: [
+      <span class="k">for</span> (<span class="k">final</span> p <span class="k">in</span> data[<span class="s">'products'</span>]) _ProductCard(data: p,
+        onAdd: () =&gt; itemContext.<span class="h">dispatchEvent</span>(<span class="k">UserActionEvent</span>(
+          name: <span class="s">'addToCart'</span>, context: {<span class="s">'productIds'</span>: [p[<span class="s">'productId'</span>]]})))
+    ]));
+  },
+);
+<span class="c">// put the 4 custom items on top of the basic catalog → one catalog</span>
+<span class="k">final</span> shopCatalog = BasicCatalogItems.asCatalog()
+  .copyWith(catalogId: <span class="s">'com.example.welfare-shop'</span>,
+            newItems: [productGridItem, comparisonTableItem,
+                       cartSummaryItem, orderConfirmationItem]);</pre>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card"><h3>This demo's catalog</h3>
+          <table class="t">
+            <tr><th>Kind</th><th>Component</th><th>Built-in action</th></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">custom</span></td><td><b>ProductGrid</b> card grid</td><td class="mono" style="font-size:12px">addToCart</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">custom</span></td><td><b>ComparisonTable</b> spec comparison</td><td class="mono" style="font-size:12px">addToCart</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">custom</span></td><td><b>CartSummary</b> cart + HITL notice</td><td class="mono" style="font-size:12px">removeFromCart · checkout</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-violet">custom</span></td><td><b>OrderConfirmation</b> order received</td><td class="mono" style="font-size:12px">—</td></tr>
+            <tr><td style="white-space:nowrap"><span class="badge b-teal">standard</span></td><td>Column · Text · Button · ChoicePicker etc. (BasicCatalogItems)</td><td class="mono" style="font-size:12px">defined ad hoc by the model</td></tr>
+          </table></div>
+        <div class="card tint"><h3>Design points</h3>
+          <ul>
+            <li><b>Safety</b>: components outside the catalog cannot be used; schema violations are refused at render</li>
+            <li><b>Design-system control</b>: shape, color and spacing are Flutter code; the model fills in "content" only</li>
+            <li><b>Event design</b>: custom parts have fixed action names (addToCart); standard Buttons get actions the model defines on the spot</li>
+          </ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 08 CATALOG</span></div>
+  <div class="notes">The answer to "so what do developers do?" We built four parts, each a schema plus a widget builder. The charm of GenUI is that the schema doubles as the manual handed to the model. We own the design, the model owns the content.</div>
+</section>
+
+<!-- ========================================================= 10. What the LLM sees -->
+<section class="slide dense">
+  <div class="s-head"><div><div class="s-tag">09 · WHAT THE LLM SEES</div><div class="s-title">What is sent to the LLM every request — three chunks<span class="sub">Not just the question. The system prompt (incl. UI component specs), the tool definitions and the conversation history travel together</span></div></div><div class="s-meta"><div class="no">09</div></div></div>
+  <div class="s-body">
+    <div class="flow">
+      <div class="box acc"><div class="t">① System prompt <span class="badge b-violet">fixed · cached</span></div><div class="d" style="text-align:left">One static string (~5,900 chars)<br>· role &amp; rules · A2UI output format<br>· <b>UI component specs (summarized)</b><br>· UI judgment guidance · 3-step purchase flow · 1 few-shot</div></div>
+      <div class="arr">+</div>
+      <div class="box"><div class="t">② 8 tool definitions <span class="badge b-amber">strict JSON Schema</span></div><div class="d" style="text-align:left">get_member · get_purchase_history · search_products · get_product_specs · add_to_cart · remove_from_cart · submit_order · confirm_payment<br>→ with which arguments the model may query the DB</div></div>
+      <div class="arr">+</div>
+      <div class="box"><div class="t">③ History + this input</div><div class="d" style="text-align:left">The session's entire prior conversation (model replies and tool results included)<br>+ the user's text, or for a button click<br><code>[UI_ACTION] {"action":{"name":"addToCart",…}}</code><br>※ screen state and point balance are not sent — they are fetched via tools</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1.25fr 1fr;margin-top:14px;flex:1">
+      <div>
+        <div class="badge b-blue" style="margin-bottom:6px">System prompt — the UI component spec section (a summary of the catalog schema)</div>
+<pre style="font-size:12px"><span class="c"># Available components (catalogId: com.example.welfare-shop)</span>
+<span class="h">- ProductGrid</span> — grid of recommended product cards
+  props: title?, products[{productId*, name*, price*(int), reason?}], showTotal?, addAllLabel?
+  built-in action: Add → addToCart {productIds:[id]}
+<span class="h">- ComparisonTable</span> — props: title?, products[…], rows[{label*, values*[]}], recommendation?
+<span class="h">- CartSummary</span> — props: items[…], total*, balanceAfter*, note?
+<span class="h">- OrderConfirmation</span> — props: orderId*, total*, status*, …
+<span class="c">## Standard components</span>
+- Column: {children:[id,…]}   - Text: {text}
+- Button: {child, variant, action:{event:{name, context:{key:{"path":"/path"}}}}}
+- ChoicePicker: {label, displayStyle:"chips", options:[…], value:{"path":"/path"}}</pre>
+      </div>
+      <div class="card"><h3>Design points</h3><ul>
+          <li><b>Short and cache-friendly</b> — easy to tune together with the domain rules (tools, purchase flow, judgment guidance) as one block</li>
+          <li><b>Good enough</b> — in measurement the model never violated the schema</li>
+          <li><b>The server holds the keys</b> — LLM calls, API keys and tool execution stay in the backend</li>
+          <li><b>Trade-off</b> — the contract lives in two places (catalog and prompt), and only the standard parts listed in the spec can be used. Generating it from the catalog with the SDK's PromptBuilder is the alternative. The FE validation is the final guard</li>
+        </ul></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 09 WHAT THE LLM SEES</span></div>
+  <div class="notes">The answer to "what do you give the LLM?" Not just the question — three chunks. The code in the middle is the point: the Flutter catalog schema transcribed into human-readable sentences. Hence the trade-off of maintaining two places. Mention PromptBuilder as the alternative and move on.</div>
+</section>
+
+<!-- ========================================================= 11. Dynamic form -->
+<section class="slide">
+  <div class="s-head"><div><div class="s-tag">10 · DYNAMIC FORM</div><div class="s-title">"Recommend canned tuna" — the model designs a form on the spot from standard parts only<span class="sub">There is no "tuna interview form" in the catalog. The model combined Column · ChoicePicker · Button and even named the action</span></div></div><div class="s-meta"><div class="no">10</div></div></div>
+  <div class="s-body">
+    <div class="grid g2" style="flex:1">
+      <div class="chat">
+        <div class="msg u">Recommend canned tuna</div>
+        <div class="msg a"><span class="tr">▸ search_products(query=canned tuna, category=food, sort=repurchase, limit=10)</span>There are many kinds of canned tuna. Instead of listing them all, let me ask two quick questions to narrow it down.</div>
+        <div class="gen"><div class="lbl">GENERATED UI · form (standard components)</div>
+          <div style="font-size:12.5px;font-weight:600;margin-top:6px">Which type are you looking for?</div>
+          <div class="chips"><span class="chip on">Chunk light</span><span class="chip">Low sodium</span><span class="chip">Spicy</span></div>
+          <div style="font-size:12.5px;font-weight:600">Preferred brand</div>
+          <div class="chips"><span class="chip on">Any</span><span class="chip">Dongwon</span><span class="chip">Sajo</span></div>
+          <span class="pbtn">Get tuna recommendations</span>
+        </div>
+        <div class="msg ua">🖱 Get tuna recommendations</div>
+        <div class="msg a"><span class="tr">▸ search_products(tags=[chunk light], …)</span>Great — narrowed down to <b>chunk light</b>. → followed by a <b>ProductGrid</b> of recommendations</div>
+      </div>
+      <div>
+        <div class="badge b-violet" style="margin-bottom:6px">The updateComponents the model emitted (measured, abridged) — data-model path binding is the key</div>
+<pre style="font-size:12px">{<span class="k">"id"</span>:<span class="s">"root"</span>,<span class="k">"component"</span>:<span class="s">"Column"</span>,<span class="k">"children"</span>:[<span class="s">"typePicker"</span>,<span class="s">"brandPicker"</span>,<span class="s">"btn"</span>]},
+{<span class="k">"id"</span>:<span class="s">"typePicker"</span>,<span class="k">"component"</span>:<span class="s">"ChoicePicker"</span>,<span class="k">"label"</span>:<span class="s">"Which type are you looking for?"</span>,
+ <span class="k">"displayStyle"</span>:<span class="s">"chips"</span>,<span class="k">"variant"</span>:<span class="s">"mutuallyExclusive"</span>,
+ <span class="k">"options"</span>:[{<span class="k">"label"</span>:<span class="s">"Chunk light"</span>,<span class="k">"value"</span>:<span class="s">"chunk light"</span>},<span class="c">…</span>],
+ <span class="k">"value"</span>:{<span class="h">"path"</span>:<span class="s">"/tuna/type"</span>}},            <span class="c">← selection is written to the data model</span>
+{<span class="k">"id"</span>:<span class="s">"btn"</span>,<span class="k">"component"</span>:<span class="s">"Button"</span>,<span class="k">"child"</span>:<span class="s">"btnLabel"</span>,<span class="k">"variant"</span>:<span class="s">"primary"</span>,
+ <span class="k">"action"</span>:{<span class="k">"event"</span>:{<span class="k">"name"</span>:<span class="h">"recommendTuna"</span>,         <span class="c">← action name invented by the model</span>
+   <span class="k">"context"</span>:{<span class="k">"type"</span>:{<span class="h">"path"</span>:<span class="s">"/tuna/type"</span>},        <span class="c">← form value attached at click time</span>
+              <span class="k">"label"</span>:<span class="s">"Get tuna recommendations"</span>}}}},
+{<span class="k">"id"</span>:<span class="s">"btnLabel"</span>,<span class="k">"component"</span>:<span class="s">"Text"</span>,<span class="k">"text"</span>:<span class="s">"Get tuna recommendations"</span>}
+<span class="c">// followed by updateDataModel seeding defaults → submitting without a selection is safe</span></pre>
+        <div class="card" style="margin-top:12px"><h3>What happened here</h3>
+          <ul>
+            <li><b>Choosing the UI shape</b>: judged total_matched to be large → interview instead of a list (the system-prompt guidance is "not mandatory")</li>
+            <li><b>Form submission pattern</b>: ChoicePicker value → data model <code>/tuna/type</code> → the Button context's path binding carries the value at click time</li>
+            <li><b>The action name <code>recommendTuna</code> exists nowhere in catalog or code</b> — the model defined it and interpreted it on the next turn. The FE only shows the label in the timeline</li>
+          </ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>GenUI demo · 10 DYNAMIC FORM</span></div>
+  <div class="notes">The most "generative" moment. Nobody designed the tuna form. The model composed it from three standard parts, named the button action itself, and interpreted that action on the next turn by itself. Be sure to show this scene in the demo.</div>
+</section>
+
+</div>
+
+<div class="hud"><b id="cur">1</b> / <span id="tot">11</span> &nbsp;·&nbsp; ← → navigate &nbsp;·&nbsp; N notes &nbsp;·&nbsp; F fullscreen &nbsp;·&nbsp; P print</div>
+
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=Math.max(0,Math.min(slides.length-1,parseInt(location.hash.slice(1)||'1',10)-1));
+  const cur=document.getElementById('cur');document.getElementById('tot').textContent=slides.length;
+  function show(n){slides.forEach(s=>s.classList.remove('active'));i=(n+slides.length)%slides.length;slides[i].classList.add('active');cur.textContent=i+1;history.replaceState(null,'','#'+(i+1));}
+  show(i);
+  function fit(){document.documentElement.style.setProperty('--scale',Math.min(window.innerWidth/1280,window.innerHeight/720).toFixed(4));}
+  fit();window.addEventListener('resize',fit);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')show(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='n'||e.key==='N')document.body.classList.toggle('show-notes');
+    else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+    else if(e.key==='p'||e.key==='P')window.print();
+  });
+  document.addEventListener('click',e=>{if(e.target.closest('.hud,.notes,a'))return;const x=e.clientX/window.innerWidth;show(x>0.5?i+1:i-1);});
+})();
+</script>
+</body>
+</html>

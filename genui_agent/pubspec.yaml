@@ -1,0 +1,25 @@
+name: genui_agent
+description: "대화형 쇼핑몰 — GenUI 프로토타입 (flutter/genui SDK 기반)"
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  genui: ^0.10.0
+  json_schema_builder: ^0.1.3
+  flutter_markdown_plus: ^1.0.7
+  logging: ^1.3.0
+  http: ^1.2.0
+  fetch_client: ^1.1.2 # 웹에서 POST 응답 스트리밍(SSE)용 — XHR은 스트리밍 불가
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

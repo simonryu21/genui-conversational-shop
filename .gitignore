@@ -1,0 +1,60 @@
+# Secrets & local env — only *.example templates are tracked
+.env
+.env.*
+!.env*.example
+
+# Company / personal-only overlays (Bedrock accounts, internal gateways, SSO scripts, CA certs).
+# Put anything that must never reach GitHub in a *.local / *.local.* file or a local/ directory.
+*.local
+*.local.*
+**/local/
+.secretpatterns.local
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Flutter / Dart (genui_agent)
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/build/
+**/coverage/
+genui_agent/dist/
+.pub-cache/
+.pub/
+
+# Logs & runtime artifacts
+logs/
+*.log
+shop_backend/logs/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.iml
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Archives / local scratch (optional large binaries)
+*.zip
+
+# AI assistant local state
+.claude/

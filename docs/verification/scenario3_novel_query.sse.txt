@@ -1,0 +1,394 @@
+# 질의: 5만원으로 캠핑 준비물 최대한 알뜰하게 골라줘
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `get_member(member_id=m-001)`  
+data: 
+
+event: chunk
+data: ▸ `get_purchase_history(member_id=m-001, category=캠핑)`  
+data: 
+
+event: chunk
+data: ▸ `search_products(query=캠핑, category=캠핑, max_price=50000, in_stock_only=True, sort=price_asc, limit=30)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: 김
+
+event: chunk
+data: 민수님은 이
+
+event: chunk
+data: 미 **
+
+event: chunk
+data: 캠핑 체어**
+
+event: chunk
+data: 와 **L
+
+event: chunk
+data: ED 랜턴**을
+
+event: chunk
+data:  보
+
+event: chunk
+data: 유하고 계
+
+event: chunk
+data: 셔
+
+event: chunk
+data: 서
+
+event: chunk
+data: ,
+
+event: chunk
+data:  이번
+
+event: chunk
+data: 엔 
+
+event: chunk
+data: 겹
+
+event: chunk
+data: 치
+
+event: chunk
+data: 지 않는
+
+event: chunk
+data:  **보온·수면 
+
+event: chunk
+data: 3
+
+event: chunk
+data: 종**으
+
+event: chunk
+data: 로 5만 
+
+event: chunk
+data: 원에
+
+event: chunk
+data:  
+
+event: chunk
+data: 딱 맞춰 구
+
+event: chunk
+data: 성했어
+
+event: chunk
+data: 요. 합
+
+event: chunk
+data: 계 
+
+event: chunk
+data: **49,700원**
+
+event: chunk
+data: 으
+
+event: chunk
+data: 로 예
+
+event: chunk
+data: 산 안
+
+event: chunk
+data: 에 
+
+event: chunk
+data: 알
+
+event: chunk
+data: 뜰하게 들어
+
+event: chunk
+data: 옵니다.
+data: 
+data: 참
+
+event: chunk
+data: 고로 소
+
+event: chunk
+data: 멸
+
+event: chunk
+data:  
+
+event: chunk
+data: 예정 포인트 **
+
+event: chunk
+data: 120
+
+event: chunk
+data: ,000P
+
+event: chunk
+data: 가
+
+event: chunk
+data:  4일 
+
+event: chunk
+data: 뒤(
+
+event: chunk
+data: 8
+
+event: chunk
+data: /31)
+
+event: chunk
+data:  사
+
+event: chunk
+data: 라집니다**
+
+event: chunk
+data:  — 이후 추가 
+
+event: chunk
+data: 소
+
+event: chunk
+data: 진
+
+event: chunk
+data: 도
+
+event: chunk
+data:  도
+
+event: chunk
+data: 와드릴게
+
+event: chunk
+data: 요.
+data: 
+data: ```
+
+event: chunk
+data: json
+data: {"
+
+event: chunk
+data: version":"v0.9","
+
+event: chunk
+data: createSur
+
+event: chunk
+data: face
+
+event: chunk
+data: ":{"surfaceId
+
+event: chunk
+data: ":"sh
+
+event: chunk
+data: op-1","cat
+
+event: chunk
+data: alogId":"com.l
+
+event: chunk
+data: gcns.welfare-
+
+event: chunk
+data: shop","s
+
+event: chunk
+data: endDataModel":true}
+
+event: chunk
+data: }
+data: ```
+
+event: chunk
+data: 
+data: ```json
+data: {"version":"
+
+event: chunk
+data: v0.9","updateCom
+
+event: chunk
+data: ponents":{"surfa
+
+event: chunk
+data: ceId":"shop-1
+
+event: chunk
+data: ","components":[{"id":
+
+event: chunk
+data: "root","component":"
+
+event: chunk
+data: ProductGrid","title":
+
+event: chunk
+data: "5
+
+event: chunk
+data: 만원 알
+
+event: chunk
+data: 뜰 캠핑
+
+event: chunk
+data:  3종 (보온·
+
+event: chunk
+data: 수면)","products":[{
+
+event: chunk
+data: "productId":"down
+
+event: chunk
+data: _blanket","emoji
+
+event: chunk
+data: ":"🧣","name":
+
+event: chunk
+data: "경량 구스다운
+
+event: chunk
+data:  블랭킷","price
+
+event: chunk
+data: ":27000,"reason":
+
+event: chunk
+data: "동
+
+event: chunk
+data: 계 
+
+event: chunk
+data: 보온 
+
+event: chunk
+data: 핵심 ·
+
+event: chunk
+data:  재구
+
+event: chunk
+data: 매율 85
+
+event: chunk
+data: %"},{"productId":
+
+event: chunk
+data: "hot_pack_50
+
+event: chunk
+data: ","emoji":"♨
+
+event: chunk
+data: ️","name":"붙이
+
+event: chunk
+data: 는 핫팩 50
+
+event: chunk
+data: 매 대용량","price":
+
+event: chunk
+data: 12900,"reason":"
+
+event: chunk
+data: 가
+
+event: chunk
+data: 성비 보
+
+event: chunk
+data: 온 · 재구매율
+
+event: chunk
+data:  91%로
+
+event: chunk
+data:  가장 높음"},
+
+event: chunk
+data: {"productId":"camp
+
+event: chunk
+data: _pillow_air","em
+
+event: chunk
+data: oji":"😴","name
+
+event: chunk
+data: ":"캠핑 에
+
+event: chunk
+data: 어베개","price":9800
+
+event: chunk
+data: ,"reason":"경량
+
+event: chunk
+data:  수면용
+
+event: chunk
+data:  ·
+
+event: chunk
+data:  최저가로
+
+event: chunk
+data:  예
+
+event: chunk
+data: 산 마
+
+event: chunk
+data: 무리"}],
+
+event: chunk
+data: "showTotal":true,
+
+event: chunk
+data: "addAllLabel":
+
+event: chunk
+data: "3
+
+event: chunk
+data: 종 세트 담
+
+event: chunk
+data: 기 (49,700원)
+
+event: chunk
+data: "}]}}
+data: ```
+
+event: done
+data: {"points": 180000}
+

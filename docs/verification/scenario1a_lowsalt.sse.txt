@@ -1,0 +1,282 @@
+# 질의: 저염 반찬 추천해줘
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `get_purchase_history(member_id=m-001, category=식품)`  
+data: 
+
+event: chunk
+data: ▸ `search_products(query=저염 반찬, category=식품, tags=['저염', '반찬'], in_stock_only=True, sort=repurchase, limit=6)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: **
+
+event: chunk
+data: 저염 반찬 3
+
+event: chunk
+data: 종**을 재
+
+event: chunk
+data: 구
+
+event: chunk
+data: 매율 높은 순
+
+event: chunk
+data: 으
+
+event: chunk
+data: 로 골
+
+event: chunk
+data: 랐
+
+event: chunk
+data: 어요. 세 
+
+event: chunk
+data: 개
+
+event: chunk
+data:  모두 재
+
+event: chunk
+data: 고가
+
+event: chunk
+data:  
+
+event: chunk
+data: 넉넉합
+
+event: chunk
+data: 니다.
+data: 
+data: ```
+
+event: chunk
+data: json
+data: {"version":"v
+
+event: chunk
+data: 0.9","createSurface
+
+event: chunk
+data: ":{"surfaceId
+
+event: chunk
+data: ":"shop-1","cat
+
+event: chunk
+data: alogId":"com.l
+
+event: chunk
+data: gcns.welfare-
+
+event: chunk
+data: shop","sendDataMod
+
+event: chunk
+data: el":true}}
+data: ```
+
+event: chunk
+data: 
+data: ```json
+data: {"version":"
+
+event: chunk
+data: v0.9","updateCom
+
+event: chunk
+data: ponents":{"surfa
+
+event: chunk
+data: ceId":"shop-1
+
+event: chunk
+data: ","components":[{"id":
+
+event: chunk
+data: "root","component":"Pro
+
+event: chunk
+data: ductGrid","title":"
+
+event: chunk
+data: 저염 반찬 추
+
+event: chunk
+data: 천 3종","products":[
+
+event: chunk
+data: {"productId":"side_
+
+event: chunk
+data: jangjorim_ls
+
+event: chunk
+data: ","emoji":"
+
+event: chunk
+data: 🥢","name":"저염 
+
+event: chunk
+data: 소고기 장조림 
+
+event: chunk
+data: 300g","price":12900,
+
+event: chunk
+data: "reason":"재구매
+
+event: chunk
+data: 율 86%
+
+event: chunk
+data:  — 가장 인기 
+
+event: chunk
+data: 있
+
+event: chunk
+data: 는 저염 반찬
+
+event: chunk
+data: "},{"productId":"
+
+event: chunk
+data: side_myeolchi_
+
+event: chunk
+data: ls","emoji":"
+
+event: chunk
+data: 🐟","name":"저
+
+event: chunk
+data: 염 멸치볶음
+
+event: chunk
+data:  200g","price":8900
+
+event: chunk
+data: ,"reason":"재구
+
+event: chunk
+data: 매율 84% — 
+
+event: chunk
+data: 밑
+
+event: chunk
+data: 반
+
+event: chunk
+data: 찬으
+
+event: chunk
+data: 로 부
+
+event: chunk
+data: 담 없는
+
+event: chunk
+data:  가격"},{"product
+
+event: chunk
+data: Id":"kimchi_
+
+event: chunk
+data: white_ls","emoji
+
+event: chunk
+data: ":"🥗","name":
+
+event: chunk
+data: "저염 백김치 
+
+event: chunk
+data: 2kg","price":19000
+
+event: chunk
+data: ,"reason":"재구
+
+event: chunk
+data: 매율 82% — 
+
+event: chunk
+data: 넉넉한 용
+
+event: chunk
+data: 량의
+
+event: chunk
+data:  저염 김치"}
+
+event: chunk
+data: ],"showTotal":true
+
+event: chunk
+data: ,"addAllLabel
+
+event: chunk
+data: ":"3
+
+event: chunk
+data: 종 세트 전체 
+
+event: chunk
+data: 담기"}]}}
+
+event: chunk
+data: 
+data: ```
+data: 
+data: 마
+
+event: chunk
+data: 음에 드는 상
+
+event: chunk
+data: 품
+
+event: chunk
+data: 의
+
+event: chunk
+data:  **
+
+event: chunk
+data: 담기** 버튼을
+
+event: chunk
+data:  누르시
+
+event: chunk
+data: 면 장
+
+event: chunk
+data: 바구
+
+event: chunk
+data: 니
+
+event: chunk
+data: 를 준비해 드
+
+event: chunk
+data: 릴게요.
+
+event: done
+data: {"points": 180000}
+

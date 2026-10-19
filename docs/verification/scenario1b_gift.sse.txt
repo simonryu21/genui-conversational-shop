@@ -1,0 +1,256 @@
+# 질의: 1만원 이하로 부모님 선물 추천해줘
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `search_products(query=부모님 선물, category=선물, max_price=10000, in_stock_only=True, sort=relevance, limit=10)`  
+data: 
+
+event: chunk
+data: ▸ `get_purchase_history(member_id=m-001, category=선물)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: ▸ `search_products(query=선물, category=선물, max_price=10000, in_stock_only=True, sort=price_asc, limit=15)`  
+data: 
+
+event: chunk
+data: ▸ `search_products(query=부모님, max_price=10000, in_stock_only=True, sort=price_asc, limit=15)`  
+data: 
+
+event: chunk
+data: 
+data: 
+
+event: chunk
+data: 1
+
+event: chunk
+data: 만원 이하 
+
+event: chunk
+data: **선
+
+event: chunk
+data: 물 카테고리**
+
+event: chunk
+data: 에서 재
+
+event: chunk
+data: 고가 있
+
+event: chunk
+data: 는 상
+
+event: chunk
+data: 품 2가
+
+event: chunk
+data: 지예
+
+event: chunk
+data: 요. 
+
+event: chunk
+data: 둘 다 재구매율
+
+event: chunk
+data: 이 높아 부모님
+
+event: chunk
+data:  
+
+event: chunk
+data: 선물로 무
+
+event: chunk
+data: 난합
+
+event: chunk
+data: 니다.
+data: 
+data: ```
+
+event: chunk
+data: json
+data: {"version":"v
+
+event: chunk
+data: 0.9","createSurface
+
+event: chunk
+data: ":{"surfaceId
+
+event: chunk
+data: ":"shop-1","cat
+
+event: chunk
+data: alogId":"com.l
+
+event: chunk
+data: gcns.welfare-
+
+event: chunk
+data: shop","sendDataMod
+
+event: chunk
+data: el":true}}
+data: ```
+
+event: chunk
+data: 
+data: ```json
+data: {"version":"
+
+event: chunk
+data: v0.9","updateCom
+
+event: chunk
+data: ponents":{"surfa
+
+event: chunk
+data: ceId":"shop-1
+
+event: chunk
+data: ","components":[{"id":
+
+event: chunk
+data: "root","component":"Pro
+
+event: chunk
+data: ductGrid","title":"
+
+event: chunk
+data: 1만원 이하 부
+
+event: chunk
+data: 모님 선물","
+
+event: chunk
+data: products":[{"productId":
+
+event: chunk
+data: "handcream_set3","
+
+event: chunk
+data: emoji":"🤲
+
+event: chunk
+data: ","name":"핸드크
+
+event: chunk
+data: 림 3종 선물세
+
+event: chunk
+data: 트","price
+
+event: chunk
+data: ":9900,"re
+
+event: chunk
+data: ason":"재구매
+
+event: chunk
+data: 율 87% — 실
+
+event: chunk
+data: 용적
+
+event: chunk
+data: 이
+
+event: chunk
+data: 고 부담
+
+event: chunk
+data:  
+
+event: chunk
+data: 없는 선물"
+
+event: chunk
+data: },{"productId":"soc
+
+event: chunk
+data: ks_gift_5","em
+
+event: chunk
+data: oji":"🧦","
+
+event: chunk
+data: name":"양말 선물
+
+event: chunk
+data: 세트 5족","price":
+
+event: chunk
+data: 8900,"reason":"
+
+event: chunk
+data: 재구매율 85% —
+
+event: chunk
+data:  가성비 
+
+event: chunk
+data: 좋은 실
+
+event: chunk
+data: 용 
+
+event: chunk
+data: 선물"}]}]
+
+event: chunk
+data: }}
+
+event: chunk
+data: 
+data: ```
+data: 
+data: 두
+
+event: chunk
+data:  상
+
+event: chunk
+data: 품을
+
+event: chunk
+data:  나
+
+event: chunk
+data: 란
+
+event: chunk
+data: 히 비교해 
+
+event: chunk
+data: 드릴까요? 아
+
+event: chunk
+data: 니면 원
+
+event: chunk
+data: 하시는 걸 바
+
+event: chunk
+data: 로 담아드릴게
+
+event: chunk
+data: 요.
+
+event: done
+data: {"points": 180000}
+
