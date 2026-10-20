@@ -1,26 +1,36 @@
 # GenUI Conversational Shop
 
-> **Conversation builds the screen.** A conversational shopping demo where the LLM decides *which UI to draw* for each question, and a Flutter app renders that spec as native widgets in real time — built on [flutter/genui](https://github.com/flutter/genui) (A2UI v0.9) and Claude.
+> **Just talk. The UI builds itself.** A conversational shopping demo in which the LLM answers with *dynamic UI, not just text*: it decides which UI fits each question and a Flutter app renders that choice as native widgets in real time — built on [flutter/genui](https://github.com/flutter/genui) (A2UI v0.9) and Claude.
 
 [한국어 README](README_ko.md) · [Demo video](https://simonryu21.github.io/genui-conversational-shop/demo.mp4) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)
 
-## Introducing the demo
+## What this project set out to prove
 
 ▶ **[Watch the demo video](https://simonryu21.github.io/genui-conversational-shop/demo.mp4)** (mp4, ~7 MB)
 
-Most chat agents answer in text only. This project shows an agent that answers **with the fitting UI**: a card grid for recommendations, a comparison table for "compare these two", an ad-hoc form when there are too many candidates, and plain text when no UI is needed. Buttons inside the generated UI feed back into the conversation as the next turn.
+Two questions drove this project:
 
-Nothing is hard-coded per scenario. The developer defines a **catalog** of four domain components plus the SDK's standard parts; the model assembles screens from them based on what the database queries return.
+1. **Does generative UI actually work today?** Not as a concept, but end to end: a real LLM, a real PostgreSQL database, and the flutter/genui A2UI SDK rendering whatever the model decides to show, with no screen coded per scenario.
+2. **What does it change in a conversational shop?** Chat agents are good at words. Are they also good at choosing *how* to show an answer so that a person understands it at a glance?
 
-| User input | Tools the model called | UI the model chose |
+Both answers turned out to be yes. The model does not just talk well; it picks the UI a person understands fastest.
+
+| You say | The model calls | What appears |
 |---|---|---|
-| "Recommend winter camping gear with my remaining points" | `get_member` → `get_purchase_history` → `search_products` ×2 | **ProductGrid** — 3 cards + set total + add-all |
-| "Compare the two sleeping bags" | `get_product_specs` | **ComparisonTable** — spec rows + per-column add |
-| "Recommend canned tuna" | `search_products` (too many results) | **Interview form** — Column + ChoicePicker ×2 + Button, assembled from standard parts |
-| "How many points do I have left?" | none (reused earlier result) | **Text only** — the model decided no UI was needed |
-| Click **Add** → **Proceed to checkout** → **Confirm payment** | `add_to_cart` → `submit_order` → `confirm_payment` | **CartSummary** → **OrderConfirmation** (+ confirm button the model built) |
+| "Recommend winter camping gear with my remaining points" | `get_member` → `get_purchase_history` → `search_products` ×2 | **ProductGrid** — 3 cards with the reason for each pick, a set total and an add-all button |
+| "Compare the two sleeping bags" | `get_product_specs` | **ComparisonTable** — spec rows side by side, an Add button per column |
+| "Recommend canned tuna" (36 results) | `search_products` | **Interview form** — two quick questions built from standard parts instead of a 36-item list |
+| "How many points do I have left?" | none (reused the earlier result) | **Text only** — the model decided nothing needed drawing |
+| Click **Add** → **Proceed to checkout** → **Confirm payment** | `add_to_cart` → `submit_order` → `confirm_payment` | **CartSummary** → **OrderConfirmation** — each click becomes the next turn |
 
-The demo was verified against a real LLM and a real PostgreSQL database with **zero Flutter code changes** between scenarios — see [docs/verification](docs/verification/README.md).
+Everything above came from one chat window with the Flutter code frozen. The developer defines a **catalog** of four domain components plus the SDK's standard parts; the model assembles the UI from those parts based on what the database returned. Verified against a real LLM and a real database with **zero Flutter code changes** between scenarios — see [docs/verification](docs/verification/README.md).
+
+## What gets better compared with text-only chat
+
+- **Fewer round trips.** When 36 products match, the model asks two quick questions in a form instead of listing everything or guessing.
+- **Less typing.** Buttons inside the generated UI feed back into the conversation as the next turn: Add, Proceed to checkout, Confirm payment.
+- **Information in shapes people already know.** A shortlist is a card grid, a comparison is a table, a cart is a cart. Nothing has to be read out of a paragraph.
+- **The app keeps its design system.** Shape, color and spacing live in Flutter code; the model fills in content only, and it can only use parts the app has granted.
 
 ## Architecture
 
@@ -140,7 +150,7 @@ The scripted agent emits the *same* text + A2UI stream format as the LLM, so the
 
 ## Verification results
 
-Three scenarios were run with the Flutter code frozen — different query conditions, a live DB price change, and an off-script request. All three produced different, correct UIs; the model also recovered from an empty search by widening its own filter. Raw SSE logs and the summary are in [docs/verification](docs/verification/README.md).
+Three scenarios were run with the Flutter code frozen — different query conditions, a live DB price change, and an off-script request. All three produced different, correct UIs; the model also recovered from an empty search by widening its own filter. For "recommend canned tuna" it built a form the catalog never defined and invented its own action name, then read that action back on the next turn. Raw SSE logs and the summary are in [docs/verification](docs/verification/README.md).
 
 ## Documentation
 

@@ -1,26 +1,36 @@
 # GenUI 대화형 쇼핑몰
 
-> **대화가 화면을 만든다.** 사용자의 질문을 보고 LLM이 *어떤 UI를 그릴지* 스스로 결정하고, Flutter 앱이 그 명세를 네이티브 위젯으로 실시간 렌더링하는 대화형 쇼핑 데모 — [flutter/genui](https://github.com/flutter/genui)(A2UI v0.9) + Claude.
+> **말만 하면 UI가 만들어진다.** LLM이 *텍스트만이 아니라 동적 UI로* 답하는 대화형 쇼핑 데모. 질문마다 어떤 UI가 맞는지 모델이 스스로 고르고, Flutter 앱이 그 선택을 네이티브 위젯으로 실시간 렌더링한다 — [flutter/genui](https://github.com/flutter/genui)(A2UI v0.9) + Claude.
 
 [English README](README.md) · [데모 영상](https://simonryu21.github.io/genui-conversational-shop/demo.mp4) · [슬라이드 (KO)](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html) · [Slides (EN)](https://simonryu21.github.io/genui-conversational-shop/slides_en.html)
 
-## 소개
+## 이 프로젝트가 확인하려던 것
 
 ▶ **[데모 영상 보기](https://simonryu21.github.io/genui-conversational-shop/demo.mp4)** (mp4, 약 7MB)
 
-대부분의 챗봇은 텍스트로만 답한다. 이 프로젝트의 에이전트는 **상황에 맞는 UI로** 답한다. 추천이면 카드 그리드, "두 개 비교해줘"면 비교표, 후보가 너무 많으면 즉석 폼, UI가 필요 없으면 텍스트만. 생성된 UI 안의 버튼은 다시 대화의 다음 턴이 된다.
+질문은 두 가지였다.
 
-시나리오별로 하드코딩된 것은 없다. 개발자는 도메인 컴포넌트 4종 + SDK 표준 부품으로 **카탈로그**를 정의하고, 모델이 DB 조회 결과를 보고 그 부품으로 화면을 조립한다.
+1. **GenUI는 지금 실제로 되는가?** 개념이 아니라 끝까지. 실제 LLM, 실제 PostgreSQL, 그리고 flutter/genui의 A2UI SDK가 모델이 보여 주기로 한 것을 그대로 렌더링하는지. 시나리오별로 미리 짜 둔 화면 없이.
+2. **대화형 쇼핑몰에 적용하면 무엇이 좋아지는가?** 챗봇은 말을 잘한다. 그런데 답을 *어떻게 보여 줄지*도 잘 고를 수 있을까? 사람이 한눈에 이해할 수 있게.
 
-| 사용자 입력 | 모델이 호출한 도구 | 모델이 선택한 UI |
+둘 다 그렇다는 답을 얻었다. 모델은 말만 잘하는 것이 아니라, 사람이 가장 빨리 이해하는 UI를 골라서 보여 준다.
+
+| 사용자가 말하면 | 모델이 호출한 도구 | 화면에 나타나는 것 |
 |---|---|---|
-| "남은 포인트로 겨울 캠핑 용품 추천해줘" | `get_member` → `get_purchase_history` → `search_products` ×2 | **ProductGrid** — 카드 3종 + 세트 합계 + 전체 담기 |
-| "침낭 두 개 비교해줘" | `get_product_specs` | **ComparisonTable** — 스펙 행 비교 + 열별 담기 |
-| "참치캔 추천해줘" | `search_products` (후보 과다) | **인터뷰 폼** — Column + ChoicePicker ×2 + Button을 표준 부품만으로 조립 |
-| "잔여 포인트 얼마야?" | 없음 (앞선 결과 재사용) | **텍스트만** — UI를 만들지 않기로 판단 |
-| **담기** → **결제 단계로 진행** → **결제 확정하기** 클릭 | `add_to_cart` → `submit_order` → `confirm_payment` | **CartSummary** → **OrderConfirmation** (+ 모델이 만든 확정 버튼) |
+| "남은 포인트로 겨울 캠핑 용품 추천해줘" | `get_member` → `get_purchase_history` → `search_products` ×2 | **ProductGrid** — 추천 이유가 적힌 카드 3장, 세트 합계, 전체 담기 버튼 |
+| "침낭 두 개 비교해줘" | `get_product_specs` | **ComparisonTable** — 스펙을 나란히 놓은 비교표, 열마다 담기 버튼 |
+| "참치캔 추천해줘" (36건) | `search_products` | **인터뷰 폼** — 36개를 나열하는 대신 표준 부품으로 만든 질문 두 개 |
+| "잔여 포인트 얼마야?" | 없음 (앞선 결과 재사용) | **텍스트만** — 그릴 것이 없다고 판단 |
+| **담기** → **결제 단계로 진행** → **결제 확정하기** 클릭 | `add_to_cart` → `submit_order` → `confirm_payment` | **CartSummary** → **OrderConfirmation** — 클릭 하나가 다음 턴이 된다 |
 
-실제 LLM + 실제 PostgreSQL로 **Flutter 코드 0줄 수정** 상태에서 검증했다 — [docs/verification](docs/verification/README.md).
+위 전부가 하나의 채팅창에서, Flutter 코드를 고정한 채 나왔다. 개발자는 도메인 컴포넌트 4종과 SDK 표준 부품으로 **카탈로그**를 정의하고, 모델은 DB 조회 결과를 보고 그 부품으로 UI를 조립한다. 실제 LLM과 실제 DB로 **Flutter 코드 0줄 수정** 상태에서 검증했다 — [docs/verification](docs/verification/README.md).
+
+## 텍스트 전용 챗봇과 비교해 좋아지는 점
+
+- **왕복이 줄어든다.** 상품 36개가 걸리면 모델은 전부 나열하거나 짐작하는 대신 폼으로 질문 두 개를 던진다.
+- **타이핑이 줄어든다.** 생성된 UI 안의 버튼이 그대로 다음 턴이 된다. 담기, 결제 단계로 진행, 결제 확정.
+- **익숙한 모양으로 정보를 본다.** 후보 목록은 카드 그리드, 비교는 표, 장바구니는 장바구니. 문단 속에서 숫자를 찾아 읽을 필요가 없다.
+- **앱의 디자인 시스템은 그대로다.** 모양, 색, 간격은 Flutter 코드에 있고 모델은 내용만 채운다. 앱이 허락한 부품 밖으로는 나갈 수 없다.
 
 ## 아키텍처
 
@@ -140,7 +150,7 @@ scripted 에이전트는 LLM과 *동일한* 텍스트 + A2UI 스트림 형식을
 
 ## 검증 결과
 
-Flutter 코드를 고정한 채 세 가지 시나리오 — 조건이 다른 질의, DB 가격 실시간 변경, 스크립트에 없는 요청 — 를 실행했다. 셋 다 서로 다른 올바른 UI가 나왔고, 검색 0건에서 모델이 스스로 조건을 넓혀 복구하는 거동도 관찰됐다. SSE 원문 로그와 요약은 [docs/verification](docs/verification/README.md).
+Flutter 코드를 고정한 채 세 가지 시나리오 — 조건이 다른 질의, DB 가격 실시간 변경, 스크립트에 없는 요청 — 를 실행했다. 셋 다 서로 다른 올바른 UI가 나왔고, 검색 0건에서 모델이 스스로 조건을 넓혀 복구하는 거동도 관찰됐다. "참치캔 추천해줘"에서는 카탈로그에 정의된 적 없는 폼을 표준 부품으로 만들고 액션 이름까지 스스로 지은 뒤, 다음 턴에서 그 액션을 읽어 처리했다. SSE 원문 로그와 요약은 [docs/verification](docs/verification/README.md).
 
 ## 문서
 
