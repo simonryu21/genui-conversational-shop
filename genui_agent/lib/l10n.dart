@@ -149,8 +149,8 @@ class AppStrings {
       AppLocale.maybeOf(context) ?? of(AppLanguage.defaultLanguage);
 
   static final ko = AppStrings._(
-    brand: 'GENUI · CONVERSATIONAL SHOPPING',
-    title: '대화형 쇼핑몰',
+    brand: 'GENUI · SHOPPING ASSISTANT',
+    title: 'GenUI 쇼핑 어시스턴트',
     memberName: '김민수',
     memberGrade: '책임',
     expireNote: "'27/3/31 일부 소멸",
@@ -200,8 +200,8 @@ class AppStrings {
   );
 
   static final en = AppStrings._(
-    brand: 'GENUI · CONVERSATIONAL SHOPPING',
-    title: 'Conversational Shop',
+    brand: 'GENUI · SHOPPING ASSISTANT',
+    title: 'Shopping Assistant',
     memberName: 'Minsu Kim',
     memberGrade: 'Manager',
     expireNote: "exp. 3/31/'27",

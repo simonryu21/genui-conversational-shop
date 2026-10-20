@@ -9,7 +9,7 @@
 | 기준 버전 | **genui 0.10.2** / **A2UI 프로토콜 v0.9** (본 문서 실측 기준) |
 | 상태 | ⚠️ **Highly Experimental** — 마이너 버전마다 breaking change 잦음 |
 | 함께 쓰는 패키지 | `json_schema_builder` (스키마 DSL), `flutter_markdown_plus` |
-| 이 저장소의 프로토타입 | `genui_agent/` — 대화형 쇼핑몰 GenUI 데모 |
+| 이 저장소의 프로토타입 | `genui_agent/` — GenUI 쇼핑 어시스턴트 데모 |
 
 ---
 

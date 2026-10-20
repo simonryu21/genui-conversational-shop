@@ -22,7 +22,7 @@ class ConciergeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GenUI Conversational Shop',
+      title: 'GenUI Shopping Assistant',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7A5CC9)),

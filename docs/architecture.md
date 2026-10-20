@@ -1,4 +1,4 @@
-# 설계 — GenUI 대화형 쇼핑몰 (LLM + PostgreSQL 실연동)
+# 설계 — GenUI 쇼핑 어시스턴트 (LLM + PostgreSQL 실연동)
 
 기준일: 2026-10-14 (구현·데모 검증 완료)
 관련 문서: [HITL 구현 설명](hitl.md) · [Flutter GenUI SDK 정리](flutter_genui_sdk.md) · [동적성 검증 결과](verification/README.md) · [발표 슬라이드](https://simonryu21.github.io/genui-conversational-shop/slides_ko.html)

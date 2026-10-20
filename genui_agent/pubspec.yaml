@@ -1,5 +1,5 @@
 name: genui_agent
-description: "대화형 쇼핑몰 — GenUI 프로토타입 (flutter/genui SDK 기반)"
+description: "GenUI 쇼핑 어시스턴트 — GenUI 프로토타입 (flutter/genui SDK 기반)"
 publish_to: "none"
 version: 0.1.0
 
