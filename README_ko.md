@@ -1,4 +1,4 @@
-# GenUI 대화형 쇼핑몰
+# GenUI 쇼핑 어시스턴트
 
 > **말만 하면 UI가 만들어진다.** LLM이 *텍스트만이 아니라 동적 UI로* 답하는 대화형 쇼핑 데모. 질문마다 어떤 UI가 맞는지 모델이 스스로 고르고, Flutter 앱이 그 선택을 네이티브 위젯으로 실시간 렌더링한다 — [flutter/genui](https://github.com/flutter/genui)(A2UI v0.9) + Claude.
 

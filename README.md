@@ -1,4 +1,4 @@
-# GenUI Conversational Shop
+# GenUI Shopping Assistant
 
 > **Just talk. The UI builds itself.** A conversational shopping demo in which the LLM answers with *dynamic UI, not just text*: it decides which UI fits each question and a Flutter app renders that choice as native widgets in real time — built on [flutter/genui](https://github.com/flutter/genui) (A2UI v0.9) and Claude.
 
